@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReallyFree - Home Explorer</title>
+    <!-- Modern Typography: Google Fonts (Outfit & JetBrains Mono for preview) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">📂</span>
+                    <span class="logo-text">ReallyFree</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="section-title">Places</span>
+                    <button class="nav-item active" id="btn-home">
+                        <span class="item-icon">🏠</span>
+                        <span class="item-label">Home Directory</span>
+                    </button>
+                    <button class="nav-item" id="btn-desktop">
+                        <span class="item-icon">🖥️</span>
+                        <span class="item-label">Desktop</span>
+                    </button>
+                    <button class="nav-item" id="btn-documents">
+                        <span class="item-icon">📄</span>
+                        <span class="item-label">Documents</span>
+                    </button>
+                    <button class="nav-item" id="btn-downloads">
+                        <span class="item-icon">📥</span>
+                        <span class="item-label">Downloads</span>
+                    </button>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="connection-status">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">Python Engine Connected</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Explorer Area -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-bar">
+                <div class="nav-controls">
+                    <button class="control-btn" id="btn-back" title="Go up to parent directory">
+                        <span class="btn-icon">⬆️</span>
+                        <span class="btn-text">Up</span>
+                    </button>
+                </div>
+                
+                <div class="address-bar">
+                    <span class="address-icon">🏠</span>
+                    <div class="address-segments" id="address-segments">
+                        <!-- Segments will be inserted dynamically -->
+                        ~
+                    </div>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Filter files in current folder...">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </header>
+
+            <!-- Workspace: Files List & Preview Pane -->
+            <div class="workspace">
+                <section class="explorer-pane">
+                    <div class="list-header">
+                        <div class="col-name">Name</div>
+                        <div class="col-size">Size</div>
+                        <div class="col-modified">Modified</div>
+                    </div>
+                    <div class="files-list" id="files-list">
+                        <!-- Loaded dynamically -->
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Reading files...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right Preview Sidebar -->
+                <aside class="preview-pane hidden" id="preview-pane">
+                    <div class="preview-header">
+                        <h3 class="preview-title">File Details</h3>
+                        <button class="close-btn" id="btn-close-preview">×</button>
+                    </div>
+                    <div class="preview-body">
+                        <div class="preview-info">
+                            <div class="preview-icon" id="preview-file-icon">📄</div>
+                            <div class="preview-filename" id="preview-filename">filename.txt</div>
+                            <div class="preview-meta" id="preview-meta">
+                                <div><span class="meta-label">Size:</span> <span id="preview-size">12 KB</span></div>
+                                <div><span class="meta-label">Modified:</span> <span id="preview-modified">2026-07-26</span></div>
+                                <div><span class="meta-label">Path:</span> <span id="preview-path" class="path-text">/path/to/file</span></div>
+                            </div>
+                        </div>
+                        <div class="preview-content-section hidden" id="preview-content-section">
+                            <h4 class="section-subtitle">File Preview</h4>
+                            <pre class="preview-content" id="preview-text-content"></pre>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
