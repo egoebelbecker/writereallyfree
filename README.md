@@ -1,6 +1,8 @@
-# ReallyFree - FreeWrite explorer.
+# WriteReallyFree - FreeWrite explorer
 
-A work in progress.
+This is a work in progress. The current version will synchronize text files on a FreeWrite device to a configured directory on a Linux or Mac PC. Windows cominf soon.
+
+A future version will also option convert the text files to docx or odt.
 
 
 ## Prerequisites & Installation
@@ -39,7 +41,7 @@ pip install pywebview[cocoa]
 # This automatically installs the required pyobjc modules (such as pyobjc-framework-Cocoa and pyobjc-framework-WebKit)
 ```
 
-### 3. System Dependencies (Windows)
+### 3. System Dependencies (Windows - not packaged yet)
 
 On Windows, `pywebview` renders windows using **WebView2** (Edge Chromium engine) and interfaces with the system via `.NET`.
 
@@ -56,13 +58,13 @@ Initialize and install Python packages using the local virtual environment:
 
 ```bash
 # 1. Navigate to the project directory
-cd ~/src/reallyfree
+cd ~/src/writereallyfree
 
-# 2. Activate the virtual environment
+# 2. Create and activate a virtual environment
 source .venv/bin/activate
 
 # 3. Install Python dependencies
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ## Running the Application
