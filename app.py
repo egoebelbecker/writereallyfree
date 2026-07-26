@@ -293,7 +293,7 @@ def main():
         background_color='#0f172a' # Dark slate background to match dark theme
     )
     
-    webview.start(debug=True)
+    webview.start()
 
 if __name__ == '__main__':
     main()
