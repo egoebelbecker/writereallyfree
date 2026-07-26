@@ -4,6 +4,8 @@ let currentPath = ""; // Active absolute path
 let currentIsDrive = false; // Is the current path on a FreeWrite drive
 let currentParentPath = null; // Calculated parent path for the "Up" button
 let syncFolderName = ""; // Tracks currently active sync folder name
+let copyEmptyFolders = false; // Tracks empty directory sync setting
+let syncFolderPrefix = ""; // Tracks sync folder prefix setting
 let allItems = []; // All items in the current directory
 let selectedItem = null; // Currently selected item object
 let driveButtons = []; // Dynamic drive elements in the sidebar
@@ -129,6 +131,8 @@ function loadDirectory(subpath) {
                     currentRelPath = response.rel_path;
                     currentParentPath = response.parent_path;
                     syncFolderName = response.sync_folder_name || "";
+                    copyEmptyFolders = response.copy_empty_folders || false;
+                    syncFolderPrefix = response.sync_folder_prefix || "";
                     
                     // Update Sync Folder shortcut path and visibility
                     if (syncFolderName) {
@@ -427,7 +431,7 @@ function setupListeners() {
             const targetValue = isCurrentSync ? "" : contextMenuItem.rel_path;
 
             if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-                window.pywebview.api.save_preferences(targetValue)
+                window.pywebview.api.save_preferences(targetValue, copyEmptyFolders, syncFolderPrefix)
                     .then(res => {
                         if (res.success) {
                             closeContextMenu();
@@ -447,6 +451,113 @@ function setupListeners() {
             closeContextMenu();
         }
     });
+
+    // Setup Sync Trigger Action
+    const btnTriggerSync = document.getElementById('btn-trigger-sync');
+    const modalSyncStatus = document.getElementById('modal-sync-status');
+    const btnCloseSyncModal = document.getElementById('btn-close-sync-modal');
+    const btnDoneSync = document.getElementById('btn-done-sync');
+    
+    if (btnTriggerSync && modalSyncStatus) {
+        btnTriggerSync.addEventListener('click', () => {
+            const syncModalTitle = document.getElementById('sync-modal-title');
+            const syncStateLoading = document.getElementById('sync-state-loading');
+            const syncStateResults = document.getElementById('sync-state-results');
+            
+            // Initial loading state setup
+            syncModalTitle.textContent = "Synchronizing";
+            syncStateLoading.style.display = 'flex';
+            syncStateResults.classList.add('hidden');
+            btnDoneSync.classList.add('hidden');
+            btnCloseSyncModal.disabled = true;
+            btnCloseSyncModal.style.opacity = '0.3';
+            
+            modalSyncStatus.classList.remove('hidden');
+            
+            if (window.pywebview && window.pywebview.api && window.pywebview.api.trigger_sync) {
+                window.pywebview.api.trigger_sync()
+                    .then(res => {
+                        btnCloseSyncModal.disabled = false;
+                        btnCloseSyncModal.style.opacity = '1';
+                        syncStateLoading.style.display = 'none';
+                        syncStateResults.classList.remove('hidden');
+                        btnDoneSync.classList.remove('hidden');
+                        
+                        const summaryEl = document.getElementById('sync-results-summary');
+                        const listEl = document.getElementById('sync-results-list');
+                        listEl.innerHTML = '';
+                        
+                        if (res.success) {
+                            syncModalTitle.textContent = "Sync Complete";
+                            
+                            const copiedCount = res.synced.filter(f => f.status === "copied").length;
+                            const identicalCount = res.synced.filter(f => f.status === "identical").length;
+                            const failedCount = res.failed.length;
+                            
+                            summaryEl.innerHTML = `
+                                <span style="color: #4ade80;">Success!</span> Scanned drives: ${res.drives_scanned.join(', ')}.<br>
+                                <span style="font-size: 13px; color: var(--text-secondary); font-weight: normal;">
+                                    Copied: ${copiedCount} | Identical (Skipped): ${identicalCount} | Failed: ${failedCount}
+                                </span>
+                            `;
+                            
+                            // Render list of files
+                            res.synced.forEach(f => {
+                                const item = document.createElement('div');
+                                item.style.fontSize = '12px';
+                                item.style.display = 'flex';
+                                item.style.justifyContent = 'space-between';
+                                if (f.status === "copied") {
+                                    item.innerHTML = `<span style="color: #38bdf8;">✓ ${f.file}</span> <span style="color: var(--text-muted);">Copied</span>`;
+                                } else {
+                                    item.innerHTML = `<span style="color: var(--text-secondary);">✓ ${f.file}</span> <span style="color: var(--text-muted);">Identical</span>`;
+                                }
+                                listEl.appendChild(item);
+                            });
+                            
+                            res.failed.forEach(f => {
+                                const item = document.createElement('div');
+                                item.style.fontSize = '12px';
+                                item.style.color = '#ef4444';
+                                item.innerHTML = `<span>✗ ${f.file}</span> <span>Error: ${f.error}</span>`;
+                                listEl.appendChild(item);
+                            });
+                            
+                            // Automatically reload directory listing in browser workspace to show synced items
+                            loadDirectory(currentRelPath);
+                        } else {
+                            syncModalTitle.textContent = "Sync Failed";
+                            summaryEl.innerHTML = `<span style="color: #ef4444;">Error:</span> ${res.error || "Unknown synchronization failure."}`;
+                        }
+                    })
+                    .catch(err => {
+                        btnCloseSyncModal.disabled = false;
+                        btnCloseSyncModal.style.opacity = '1';
+                        syncStateLoading.style.display = 'none';
+                        syncStateResults.classList.remove('hidden');
+                        btnDoneSync.classList.remove('hidden');
+                        
+                        document.getElementById('sync-modal-title').textContent = "Sync Error";
+                        document.getElementById('sync-results-summary').innerHTML = `<span style="color: #ef4444;">Unhandled Error:</span> ${err.toString()}`;
+                    });
+            } else {
+                // Fail-safe if API is missing
+                setTimeout(() => {
+                    btnCloseSyncModal.disabled = false;
+                    btnCloseSyncModal.style.opacity = '1';
+                    syncStateLoading.style.display = 'none';
+                    syncStateResults.classList.remove('hidden');
+                    btnDoneSync.classList.remove('hidden');
+                    document.getElementById('sync-modal-title').textContent = "API Error";
+                    document.getElementById('sync-results-summary').textContent = "Python trigger_sync endpoint not loaded.";
+                }, 1000);
+            }
+        });
+        
+        const closeSyncModal = () => modalSyncStatus.classList.add('hidden');
+        btnCloseSyncModal.addEventListener('click', closeSyncModal);
+        btnDoneSync.addEventListener('click', closeSyncModal);
+    }
 }
 
 let contextMenuItem = null; // Tracks folder being acted upon
@@ -497,6 +608,8 @@ function setupPreferencesListeners() {
     const btnCancelPreferences = document.getElementById('btn-cancel-preferences');
     const btnSavePreferences = document.getElementById('btn-save-preferences');
     const inputSyncFolder = document.getElementById('input-sync-folder');
+    const inputCopyEmpty = document.getElementById('input-copy-empty');
+    const inputFolderPrefix = document.getElementById('input-folder-prefix');
     
     if (!modalPreferences || !btnPreferences) return;
 
@@ -506,6 +619,8 @@ function setupPreferencesListeners() {
                 .then(res => {
                     if (res.success) {
                         inputSyncFolder.value = res.sync_folder_name || "";
+                        inputCopyEmpty.checked = res.copy_empty_folders || false;
+                        inputFolderPrefix.value = res.sync_folder_prefix || "";
                     }
                     modalPreferences.classList.remove('hidden');
                 });
@@ -520,8 +635,10 @@ function setupPreferencesListeners() {
 
     btnSavePreferences.addEventListener('click', () => {
         const value = inputSyncFolder.value.trim();
+        const copyEmpty = inputCopyEmpty.checked;
+        const folderPrefix = inputFolderPrefix.value;
         if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-            window.pywebview.api.save_preferences(value)
+            window.pywebview.api.save_preferences(value, copyEmpty, folderPrefix)
                 .then(res => {
                     if (res.success) {
                         closeModal();

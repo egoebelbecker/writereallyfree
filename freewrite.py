@@ -3,15 +3,28 @@ import getpass
 import platform
 from windows import get_windows_volume_label
 
+def map_sync_path(rel_path, prefix, is_dir=False):
+    if not prefix or not rel_path or rel_path == ".":
+        return rel_path
+    parts = rel_path.split(os.sep)
+    if len(parts) > 1 or is_dir:
+        parts[0] = f"{prefix}{parts[0]}"
+        return os.path.join(*parts)
+    return rel_path
+
 class FreeWriteDriveManager:
     def __init__(self):
         self.allowed_labels = {'freewrite', 'traveler', 'alpha'}
         from config_store import load_config
         config = load_config()
         self.sync_folder_name = config.get("sync_folder_name", "")
+        self.copy_empty_folders = config.get("copy_empty_folders", False)
+        self.sync_folder_prefix = config.get("sync_folder_prefix", "")
 
-    def update_sync_folder_name(self, name):
+    def update_sync_settings(self, name, copy_empty_folders, prefix):
         self.sync_folder_name = name
+        self.copy_empty_folders = copy_empty_folders
+        self.sync_folder_prefix = prefix
 
     def get_drives(self):
         """Scans the system for mounted drives named FreeWrite, Traveler, or Alpha."""
@@ -69,4 +82,111 @@ class FreeWriteDriveManager:
                         except Exception:
                             pass
         return drives
+
+    def sync_drives(self):
+        """
+        Synchronizes files from all detected FreeWrite drives to the local sync directory.
+        Verifies copy success using SHA-256 checksums.
+        """
+        import hashlib
+        import shutil
+
+        if not self.sync_folder_name:
+            return {"success": False, "error": "No sync folder is currently configured in preferences."}
+
+        home_dir = os.path.expanduser('~')
+        dest_base = os.path.join(home_dir, self.sync_folder_name)
+
+        try:
+            os.makedirs(dest_base, exist_ok=True)
+        except Exception as e:
+            return {"success": False, "error": f"Failed to create sync directory: {str(e)}"}
+
+        drives = self.get_drives()
+        if not drives:
+            return {"success": False, "error": "No FreeWrite, Traveler, or Alpha USB drives detected."}
+
+        synced_files = []
+        failed_files = []
+        errors = []
+
+        def get_checksum(filepath):
+            hasher = hashlib.sha256()
+            try:
+                with open(filepath, 'rb') as f:
+                    for chunk in iter(lambda: f.read(4096), b''):
+                         hasher.update(chunk)
+                return hasher.hexdigest()
+            except Exception:
+                return None
+
+        for drive in drives:
+            drive_path = drive["path"]
+            
+            # Pass 1: Handle empty directories copy if enabled
+            if self.copy_empty_folders:
+                for root, dirs, files in os.walk(drive_path):
+                    dirs[:] = [d for d in dirs if not d.startswith('.')]
+                    for d in dirs:
+                        dir_path = os.path.join(root, d)
+                        rel_dir = os.path.relpath(dir_path, drive_path)
+                        mapped_rel_dir = map_sync_path(rel_dir, self.sync_folder_prefix, is_dir=True)
+                        dest_dir = os.path.join(dest_base, mapped_rel_dir)
+                        try:
+                            os.makedirs(dest_dir, exist_ok=True)
+                        except Exception as e:
+                            errors.append(f"Failed to create empty directory {rel_dir}: {str(e)}")
+
+            # Walk the drive files recursively
+            for root, dirs, files in os.walk(drive_path):
+                # Skip hidden directories
+                dirs[:] = [d for d in dirs if not d.startswith('.')]
+
+                for file in files:
+                    if file.startswith('.'):
+                        continue
+
+                    src_file = os.path.join(root, file)
+                    rel_path = os.path.relpath(src_file, drive_path)
+                    mapped_rel_path = map_sync_path(rel_path, self.sync_folder_prefix, is_dir=False)
+                    dest_file = os.path.join(dest_base, mapped_rel_path)
+                    dest_dir = os.path.dirname(dest_file)
+
+                    try:
+                        os.makedirs(dest_dir, exist_ok=True)
+
+                        src_hash = get_checksum(src_file)
+                        if src_hash is None:
+                            raise Exception("Could not calculate source file checksum.")
+
+                        dest_hash = None
+                        if os.path.exists(dest_file):
+                            dest_hash = get_checksum(dest_file)
+
+                        if src_hash == dest_hash:
+                            synced_files.append({"file": mapped_rel_path, "status": "identical"})
+                            continue
+
+                        # Perform the copy
+                        shutil.copy2(src_file, dest_file)
+
+                        # Recalculate hash to verify integrity
+                        post_dest_hash = get_checksum(dest_file)
+                        if src_hash == post_dest_hash:
+                            synced_files.append({"file": mapped_rel_path, "status": "copied"})
+                        else:
+                            failed_files.append({"file": mapped_rel_path, "error": "Checksum verification failed after copy."})
+
+                    except Exception as e:
+                        failed_files.append({"file": mapped_rel_path, "error": str(e)})
+                        errors.append(f"Error copying {rel_path}: {str(e)}")
+
+        return {
+            "success": True,
+            "drives_scanned": [d["name"] for d in drives],
+            "synced": synced_files,
+            "failed": failed_files,
+            "errors": errors
+        }
+
 

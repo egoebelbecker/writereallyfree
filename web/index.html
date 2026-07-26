@@ -46,6 +46,14 @@
                         <span class="item-label">Downloads</span>
                     </button>
                 </div>
+
+                <!-- Prominent Sync Action Button -->
+                <div class="sidebar-action-container" style="padding: 10px 16px;">
+                    <button class="action-btn btn-primary" id="btn-trigger-sync" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 12px; border-radius: var(--radius-md); border: none; cursor: pointer; color: white;">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">Sync FreeWrite</span>
+                    </button>
+                </div>
                 
                 <div class="nav-section hidden" id="section-drives" style="margin-top: 24px;">
                     <span class="section-title">Drives</span>
@@ -145,10 +153,44 @@
                     <p class="form-help">Enter the subfolder name under your Home directory where files should sync (e.g., <code>Writing</code>).</p>
                     <input type="text" id="input-sync-folder" placeholder="e.g. Writing">
                 </div>
+                <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
+                    <input type="checkbox" id="input-copy-empty" style="width: auto; cursor: pointer;">
+                    <label for="input-copy-empty" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Copy Empty Folders</label>
+                </div>
+                <div class="form-group">
+                    <label for="input-folder-prefix">Folder Prefix (Optional)</label>
+                    <p class="form-help">Prefix added to top-level device folders (e.g. <code>FreeWrite Folder </code> yields <code>FreeWrite Folder A</code>).</p>
+                    <input type="text" id="input-folder-prefix" placeholder="e.g. FreeWrite Folder ">
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="modal-btn btn-secondary" id="btn-cancel-preferences">Cancel</button>
                 <button class="modal-btn btn-primary" id="btn-save-preferences">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Status Modal -->
+    <div class="modal-backdrop hidden" id="modal-sync-status">
+        <div class="modal-container" style="width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="sync-modal-title">Synchronizing</h3>
+                <button class="close-btn" id="btn-close-sync-modal">×</button>
+            </div>
+            <div class="modal-body" id="sync-modal-body">
+                <!-- Loading State -->
+                <div class="sync-loading" id="sync-state-loading" style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 0;">
+                    <div class="spinner" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <p style="color: var(--text-secondary); font-size: 14px;">Copying files and verifying checksums...</p>
+                </div>
+                <!-- Results State -->
+                <div class="sync-results hidden" id="sync-state-results" style="display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto;">
+                    <div class="results-summary" id="sync-results-summary" style="font-weight: 600; font-size: 14px; margin-bottom: 8px;"></div>
+                    <div class="results-list" id="sync-results-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn btn-primary hidden" id="btn-done-sync">Done</button>
             </div>
         </div>
     </div>

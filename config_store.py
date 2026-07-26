@@ -22,13 +22,22 @@ def get_config_dir():
 def load_config():
     config_dir = get_config_dir()
     config_path = os.path.join(config_dir, "config.json")
+    defaults = {
+        "sync_folder_name": "",
+        "copy_empty_folders": False,
+        "sync_folder_prefix": ""
+    }
     if os.path.exists(config_path):
         try:
             with open(config_path, "r") as f:
-                return json.load(f)
+                data = json.load(f)
+                for k, v in defaults.items():
+                    if k not in data:
+                        data[k] = v
+                return data
         except Exception:
             pass
-    return {"sync_folder_name": ""}
+    return defaults
 
 def save_config(config_data):
     config_dir = get_config_dir()
