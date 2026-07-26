@@ -24,23 +24,18 @@
             <nav class="sidebar-nav">
                 <div class="nav-section">
                     <span class="section-title">Places</span>
-                    <button class="nav-item active" id="btn-home">
-                        <span class="item-icon">🏠</span>
-                        <span class="item-label">Home Directory</span>
-                    </button>
                     <!-- Sync Directory Shortcut -->
                     <button class="nav-item hidden" id="btn-sync">
                         <span class="item-icon">🔄</span>
                         <span class="item-label">Sync Directory</span>
                     </button>
-
+                    <button class="nav-item active" id="btn-home">
+                        <span class="item-icon">🏠</span>
+                        <span class="item-label">Home Directory</span>
+                    </button>
                     <button class="nav-item" id="btn-documents">
                         <span class="item-icon">📄</span>
                         <span class="item-label">Documents</span>
-                    </button>
-                    <button class="nav-item" id="btn-downloads">
-                        <span class="item-icon">📥</span>
-                        <span class="item-label">Downloads</span>
                     </button>
                 </div>
 
@@ -53,7 +48,7 @@
                 </div>
                 
                 <div class="nav-section hidden" id="section-drives" style="margin-top: 24px;">
-                    <span class="section-title">Drives</span>
+                    <span class="section-title">FreeWrite Drives</span>
                     <div id="drives-list" style="display: flex; flex-direction: column; gap: 4px;">
                         <!-- Dynamic FreeWrite drives will be inserted here -->
                     </div>

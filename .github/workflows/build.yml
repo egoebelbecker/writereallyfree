@@ -1,0 +1,89 @@
+name: Build Applications
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    name: Build Linux AppImage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Create Virtual Environment & Install Dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt
+
+      - name: Package AppImage
+        run: |
+          chmod +x build_appimage.sh
+          ./build_appimage.sh
+
+      - name: Upload AppImage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WriteReallyFree-Linux-AppImage
+          path: WriteReallyFree-x86_64.AppImage
+          if-no-files-found: error
+
+  build-macos:
+    name: Build macOS DMG
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install macOS Dependencies
+        run: |
+          pip install --upgrade pip
+          # pyobjc bindings are required for pywebview on macOS
+          pip install pywebview pyobjc pyinstaller
+
+      - name: Build via PyInstaller
+        run: |
+          pyinstaller --clean \
+            --name WriteReallyFree \
+            --add-data "web:web" \
+            --windowed \
+            --noconfirm \
+            app.py
+
+      - name: Package DMG
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "WriteReallyFree" \
+            --volicon "web/icon.png" \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "WriteReallyFree.app" 175 120 \
+            --hide-extension "WriteReallyFree.app" \
+            --app-drop-link 425 120 \
+            "dist/WriteReallyFree.dmg" \
+            "dist/WriteReallyFree.app"
+
+      - name: Upload DMG Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WriteReallyFree-macOS-DMG
+          path: dist/WriteReallyFree.dmg
+          if-no-files-found: error

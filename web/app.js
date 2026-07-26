@@ -37,8 +37,7 @@ const btnClosePreview = document.getElementById('btn-close-preview');
 const places = {
     home: { btn: document.getElementById('btn-home'), path: "" },
     sync: { btn: document.getElementById('btn-sync'), path: "" },
-    documents: { btn: document.getElementById('btn-documents'), path: "Documents" },
-    downloads: { btn: document.getElementById('btn-downloads'), path: "Downloads" }
+    documents: { btn: document.getElementById('btn-documents'), path: "Documents" }
 };
 
 // Format Bytes to human readable
@@ -393,8 +392,6 @@ function updateSidebarHighlight(response) {
             places.home.btn.classList.add('active');
         } else if (relPath === "Documents" || relPath.startsWith("Documents/")) {
             places.documents.btn.classList.add('active');
-        } else if (relPath === "Downloads" || relPath.startsWith("Downloads/")) {
-            places.downloads.btn.classList.add('active');
         }
     }
 }
