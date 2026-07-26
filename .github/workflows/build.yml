@@ -3,6 +3,7 @@ name: Build Applications
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -58,12 +59,29 @@ jobs:
           # pyobjc bindings are required for pywebview on macOS
           pip install pywebview pyobjc pyinstaller
 
+      - name: Generate macOS ICNS Icon
+        run: |
+          mkdir -p web/icon.iconset
+          sips -z 16 16     web/icon.png --out web/icon.iconset/icon_16x16.png
+          sips -z 32 32     web/icon.png --out web/icon.iconset/icon_16x16@2x.png
+          sips -z 32 32     web/icon.png --out web/icon.iconset/icon_32x32.png
+          sips -z 64 64     web/icon.png --out web/icon.iconset/icon_32x32@2x.png
+          sips -z 128 128   web/icon.png --out web/icon.iconset/icon_128x128.png
+          sips -z 256 256   web/icon.png --out web/icon.iconset/icon_128x128@2x.png
+          sips -z 256 256   web/icon.png --out web/icon.iconset/icon_256x256.png
+          sips -z 512 512   web/icon.png --out web/icon.iconset/icon_256x256@2x.png
+          sips -z 512 512   web/icon.png --out web/icon.iconset/icon_512x512.png
+          sips -z 1024 1024 web/icon.png --out web/icon.iconset/icon_512x512@2x.png
+          iconutil -c icns web/icon.iconset -o web/icon.icns
+          rm -rf web/icon.iconset
+
       - name: Build via PyInstaller
         run: |
           pyinstaller --clean \
             --name WriteReallyFree \
             --add-data "web:web" \
             --windowed \
+            --icon "web/icon.icns" \
             --noconfirm \
             app.py
 
@@ -72,7 +90,7 @@ jobs:
           brew install create-dmg
           create-dmg \
             --volname "WriteReallyFree" \
-            --volicon "web/icon.png" \
+            --volicon "web/icon.icns" \
             --window-size 600 400 \
             --icon-size 100 \
             --icon "WriteReallyFree.app" 175 120 \
@@ -87,3 +105,30 @@ jobs:
           name: WriteReallyFree-macOS-DMG
           path: dist/WriteReallyFree.dmg
           if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    needs: [build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download Linux AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: WriteReallyFree-Linux-AppImage
+          path: ./artifacts
+
+      - name: Download macOS DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: WriteReallyFree-macOS-DMG
+          path: ./artifacts
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ./artifacts/WriteReallyFree-x86_64.AppImage
+            ./artifacts/WriteReallyFree.dmg
