@@ -30,7 +30,7 @@ class HomeExplorerAPI:
         return ""
 
     def get_preferences(self):
-        """API Endpoint to fetch saved configuration preferences."""
+        """Fetch saved configuration preferences."""
         return {
             "success": True,
             "sync_folder_name": self.sync_folder_name,
@@ -41,7 +41,7 @@ class HomeExplorerAPI:
         }
 
     def save_preferences(self, sync_folder_name, copy_empty_folders=False, copy_readme=False, theme="system", sync_folder_prefix=""):
-        """API Endpoint to save preferences and ensure folders exist."""
+        """Save preferences and ensure folders exist."""
         try:
             sync_folder_name = sync_folder_name.strip().strip("/").strip("\\")
             
@@ -74,7 +74,7 @@ class HomeExplorerAPI:
             return {"success": False, "error": str(e)}
 
     def trigger_sync(self):
-        """API Endpoint to trigger drive synchronization."""
+        """Trigger drive synchronization."""
         try:
             # Re-read configuration settings first to ensure path matches preferences
             from config_store import load_config
@@ -92,7 +92,7 @@ class HomeExplorerAPI:
 
 
     def get_freewrite_drives(self):
-        """API Endpoint to fetch mounted FreeWrite drives."""
+        """Fetch mounted FreeWrite drives."""
         try:
             return {"success": True, "drives": self.freewrite_manager.get_drives()}
         except Exception as e:
@@ -100,8 +100,7 @@ class HomeExplorerAPI:
 
     def list_directory(self, subpath=""):
         """
-        Lists files and directories under the home directory + subpath
-        or under a detected FreeWrite drive.
+        Lists files and directories under the specified location
         """
         try:
             # Get list of allowed base paths
@@ -291,7 +290,7 @@ def main():
         width=1000,
         height=700,
         min_size=(800, 600),
-        background_color='#0f172a' # Dark slate background to match our dark theme
+        background_color='#0f172a' # Dark slate background to match dark theme
     )
     
     webview.start()
