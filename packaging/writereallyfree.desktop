@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=WriteReallyFree
+Comment=Synchronize and manage FreeWrite smart typewriter documents
+Exec=writereallyfree
+Icon=writereallyfree
+Categories=Office;Utility;
+Terminal=false

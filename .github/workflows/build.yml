@@ -34,8 +34,8 @@ jobs:
 
       - name: Package AppImage
         run: |
-          chmod +x build_appimage.sh
-          ./build_appimage.sh
+          chmod +x packaging/build_appimage.sh
+          ./packaging/build_appimage.sh
 
       - name: Upload AppImage Artifact
         uses: actions/upload-artifact@v4
