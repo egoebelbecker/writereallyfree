@@ -28,6 +28,10 @@ jobs:
           .venv/bin/pip install --upgrade pip
           .venv/bin/pip install -r requirements.txt
 
+      - name: Run Tests
+        run: |
+          .venv/bin/python -m pytest -q
+
       - name: Package AppImage
         run: |
           chmod +x build_appimage.sh
@@ -55,9 +59,13 @@ jobs:
 
       - name: Install macOS Dependencies
         run: |
-          pip install --upgrade pip
-          # pyobjc bindings are required for pywebview on macOS
-          pip install pywebview pyobjc pyinstaller
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt
+
+      - name: Run Tests
+        run: |
+          .venv/bin/python -m pytest -q
 
       - name: Generate macOS ICNS Icon
         run: |

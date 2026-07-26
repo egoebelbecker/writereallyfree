@@ -2,3 +2,4 @@ pywebview
 PyQt5
 PyQtWebEngine
 qtpy
+pytest
