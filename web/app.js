@@ -53,7 +53,7 @@ function formatBytes(bytes, decimals = 2) {
 // Check if file is likely viewable text
 function isTextFile(filename) {
     const textExtensions = [
-        'txt', 'md', 'py', 'js', 'json', 'html', 'css', 'xml', 'yml', 'yaml', 
+        'txt', 'md', 'py', 'js', 'json', 'html', 'css', 'xml', 'yml', 'yaml',
         'ini', 'conf', 'sh', 'bash', 'cfg', 'csv', 'log', 'lua', 'toml'
     ];
     const ext = filename.split('.').pop().toLowerCase();
@@ -63,7 +63,7 @@ function isTextFile(filename) {
 // Generate file type icons
 function getFileIcon(item) {
     if (item.is_dir) return '📁';
-    
+
     const ext = item.name.split('.').pop().toLowerCase();
     switch (ext) {
         case 'pdf': return '📕';
@@ -84,7 +84,7 @@ function getFileIcon(item) {
 // Render breadcrumbs/address segments
 function renderBreadcrumbs(response) {
     addressSegments.innerHTML = '';
-    
+
     // Start segment: either "Home" or the drive name
     const startSpan = document.createElement('span');
     if (response.is_drive) {
@@ -95,27 +95,27 @@ function renderBreadcrumbs(response) {
         startSpan.addEventListener('click', () => navigateToPath(""));
     }
     addressSegments.appendChild(startSpan);
-    
+
     if (!response.rel_path) return;
-    
+
     const parts = response.rel_path.split(/[/\\]/).filter(p => p);
     let accumPath = response.is_drive ? response.drive_base : "";
     const isWindows = response.current_path.includes('\\') || (response.drive_base && response.drive_base.includes('\\'));
     const separatorChar = isWindows ? '\\' : '/';
-    
+
     parts.forEach(part => {
         const separator = document.createElement('span');
         separator.textContent = ' / ';
         separator.className = 'separator';
         addressSegments.appendChild(separator);
-        
+
         if (accumPath) {
             accumPath += (accumPath.endsWith(separatorChar) ? '' : separatorChar) + part;
         } else {
             accumPath = part;
         }
         const currentPathCopy = accumPath; // Closure snapshot
-        
+
         const segment = document.createElement('span');
         segment.textContent = part;
         segment.addEventListener('click', () => navigateToPath(currentPathCopy));
@@ -133,7 +133,7 @@ function loadDirectory(subpath) {
         </div>
     `;
     closePreview();
-    
+
     // Interact with PyWebView Python API
     if (window.pywebview && window.pywebview.api) {
         window.pywebview.api.list_directory(subpath)
@@ -149,7 +149,7 @@ function loadDirectory(subpath) {
                     theme = response.theme || "system";
                     syncFolderPrefix = response.sync_folder_prefix || "";
                     applyTheme(theme);
-                    
+
                     // Update Sync Folder shortcut path and visibility
                     if (syncFolderName) {
                         places.sync.path = syncFolderName;
@@ -157,13 +157,13 @@ function loadDirectory(subpath) {
                     } else {
                         places.sync.btn.classList.add('hidden');
                     }
-                    
+
                     allItems = response.items;
-                    
+
                     renderBreadcrumbs(response);
                     renderFiles(allItems);
                     loadDrives(); // Dynamically refresh drives
-                    
+
                     // Enable/disable Up button based on whether we can go up
                     const btnBack = document.getElementById('btn-back');
                     if (currentParentPath !== null) {
@@ -175,7 +175,7 @@ function loadDirectory(subpath) {
                         btnBack.style.opacity = '0.5';
                         btnBack.style.cursor = 'not-allowed';
                     }
-                    
+
                     updateSidebarHighlight(response);
                 } else {
                     renderError(response.error || "Failed to load directory");
@@ -207,10 +207,10 @@ function renderDrives(drives) {
     const sectionDrives = document.getElementById('section-drives');
     const drivesList = document.getElementById('drives-list');
     if (!sectionDrives || !drivesList) return;
-    
+
     drivesList.innerHTML = '';
     driveButtons = [];
-    
+
     if (drives && drives.length > 0) {
         sectionDrives.classList.remove('hidden');
         drives.forEach(drive => {
@@ -228,7 +228,7 @@ function renderDrives(drives) {
             drivesList.appendChild(btn);
             driveButtons.push({ btn: btn, path: drive.path });
         });
-        
+
         // Highlight active drive if currently viewing a drive
         if (currentIsDrive) {
             const normalizedCurrent = currentPath.replace(/\\/g, '/');
@@ -265,15 +265,15 @@ function renderFiles(items) {
         `;
         return;
     }
-    
+
     filesList.innerHTML = '';
     items.forEach((item, index) => {
         const row = document.createElement('div');
         row.className = 'file-item';
         row.dataset.index = index;
-        
+
         const sizeText = item.is_dir ? '--' : formatBytes(item.size);
-        
+
         row.innerHTML = `
             <div class="file-name-col">
                 <span class="file-icon">${getFileIcon(item)}</span>
@@ -282,12 +282,12 @@ function renderFiles(items) {
             <div class="file-size-col">${sizeText}</div>
             <div class="file-modified-col">${item.modified}</div>
         `;
-        
+
         // Single Click -> Selection and Details
         row.addEventListener('click', (e) => {
             selectItem(index, row);
         });
-        
+
         // Right Click Context Menu (Directories only)
         if (item.is_dir) {
             row.addEventListener('contextmenu', (e) => {
@@ -295,7 +295,7 @@ function renderFiles(items) {
                 showContextMenu(e, item);
             });
         }
-        
+
         // Double Click -> Navigate folder or Preview file
         row.addEventListener('dblclick', () => {
             if (item.is_dir) {
@@ -304,7 +304,7 @@ function renderFiles(items) {
                 showPreview(item);
             }
         });
-        
+
         filesList.appendChild(row);
     });
 }
@@ -313,10 +313,10 @@ function renderFiles(items) {
 function selectItem(index, rowElement) {
     // Clear selection
     document.querySelectorAll('.file-item').forEach(el => el.classList.remove('selected'));
-    
+
     selectedItem = allItems[index];
     rowElement.classList.add('selected');
-    
+
     showPreview(selectedItem);
 }
 
@@ -327,23 +327,23 @@ function navigateToPath(relPath) {
 // Side pane preview actions
 function showPreview(item) {
     selectedItem = item;
-    
+
     document.getElementById('preview-file-icon').textContent = getFileIcon(item);
     document.getElementById('preview-filename').textContent = item.name;
     document.getElementById('preview-size').textContent = item.is_dir ? 'Directory' : formatBytes(item.size);
     document.getElementById('preview-modified').textContent = item.modified;
     document.getElementById('preview-path').textContent = item.rel_path ? `~/` + item.rel_path : `~`;
-    
+
     const previewContentSection = document.getElementById('preview-content-section');
     const textContentEl = document.getElementById('preview-text-content');
-    
+
     previewContentSection.classList.add('hidden');
     textContentEl.textContent = '';
-    
+
     if (!item.is_dir && isTextFile(item.name) && item.size < 5000000) { // Limit to files < 5MB for safety
         textContentEl.textContent = 'Loading preview...';
         previewContentSection.classList.remove('hidden');
-        
+
         if (window.pywebview && window.pywebview.api) {
             window.pywebview.api.read_file_preview(item.rel_path)
                 .then(res => {
@@ -361,7 +361,7 @@ function showPreview(item) {
                 });
         }
     }
-    
+
     previewPane.classList.remove('hidden');
 }
 
@@ -376,7 +376,7 @@ function updateSidebarHighlight(response) {
     // Reset all
     Object.values(places).forEach(p => p.btn.classList.remove('active'));
     driveButtons.forEach(db => db.btn.classList.remove('active'));
-    
+
     if (response.is_drive) {
         const normalizedCurrent = response.current_path.replace(/\\/g, '/');
         const activeDrive = driveButtons.find(db => {
@@ -402,14 +402,14 @@ function updateSidebarHighlight(response) {
 function setupListeners() {
     // Close preview button
     btnClosePreview.addEventListener('click', closePreview);
-    
+
     // Go Up button
     btnBack.addEventListener('click', () => {
         if (currentParentPath !== null) {
             navigateToPath(currentParentPath);
         }
     });
-    
+
     // Search input (instant client side filtering)
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
@@ -417,13 +417,13 @@ function setupListeners() {
             renderFiles(allItems);
             return;
         }
-        
-        const filtered = allItems.filter(item => 
+
+        const filtered = allItems.filter(item =>
             item.name.toLowerCase().includes(query)
         );
         renderFiles(filtered);
     });
-    
+
     // Places sidebar listeners
     Object.values(places).forEach(place => {
         place.btn.addEventListener('click', () => {
@@ -471,13 +471,24 @@ function setupListeners() {
     const modalSyncStatus = document.getElementById('modal-sync-status');
     const btnCloseSyncModal = document.getElementById('btn-close-sync-modal');
     const btnDoneSync = document.getElementById('btn-done-sync');
-    
+
+
+
+    const btnCheckDrives = document.getElementById('btn-check-drives');
+    if (btnCheckDrives) {
+        btnCheckDrives.addEventListener('click', () => {
+            loadDrives();
+        });
+
+    }
+
+
     if (btnTriggerSync && modalSyncStatus) {
         btnTriggerSync.addEventListener('click', () => {
             const syncModalTitle = document.getElementById('sync-modal-title');
             const syncStateLoading = document.getElementById('sync-state-loading');
             const syncStateResults = document.getElementById('sync-state-results');
-            
+
             // Initial loading state setup
             syncModalTitle.textContent = "Synchronizing";
             syncStateLoading.style.display = 'flex';
@@ -485,9 +496,9 @@ function setupListeners() {
             btnDoneSync.classList.add('hidden');
             btnCloseSyncModal.disabled = true;
             btnCloseSyncModal.style.opacity = '0.3';
-            
+
             modalSyncStatus.classList.remove('hidden');
-            
+
             if (window.pywebview && window.pywebview.api && window.pywebview.api.trigger_sync) {
                 window.pywebview.api.trigger_sync()
                     .then(res => {
@@ -496,25 +507,25 @@ function setupListeners() {
                         syncStateLoading.style.display = 'none';
                         syncStateResults.classList.remove('hidden');
                         btnDoneSync.classList.remove('hidden');
-                        
+
                         const summaryEl = document.getElementById('sync-results-summary');
                         const listEl = document.getElementById('sync-results-list');
                         listEl.innerHTML = '';
-                        
+
                         if (res.success) {
                             syncModalTitle.textContent = "Sync Complete";
-                            
+
                             const copiedCount = res.synced.filter(f => f.status === "copied").length;
                             const identicalCount = res.synced.filter(f => f.status === "identical").length;
                             const failedCount = res.failed.length;
-                            
+
                             summaryEl.innerHTML = `
                                 <span style="color: #4ade80;">Success!</span> Scanned drives: ${res.drives_scanned.join(', ')}.<br>
                                 <span style="font-size: 13px; color: var(--text-secondary); font-weight: normal;">
                                     Copied: ${copiedCount} | Identical (Skipped): ${identicalCount} | Failed: ${failedCount}
                                 </span>
                             `;
-                            
+
                             // Render list of files
                             res.synced.forEach(f => {
                                 const item = document.createElement('div');
@@ -528,7 +539,7 @@ function setupListeners() {
                                 }
                                 listEl.appendChild(item);
                             });
-                            
+
                             res.failed.forEach(f => {
                                 const item = document.createElement('div');
                                 item.style.fontSize = '12px';
@@ -536,7 +547,7 @@ function setupListeners() {
                                 item.innerHTML = `<span>✗ ${f.file}</span> <span>Error: ${f.error}</span>`;
                                 listEl.appendChild(item);
                             });
-                            
+
                             // Automatically reload directory listing in browser workspace to show synced items
                             loadDirectory(currentRelPath);
                         } else {
@@ -550,7 +561,7 @@ function setupListeners() {
                         syncStateLoading.style.display = 'none';
                         syncStateResults.classList.remove('hidden');
                         btnDoneSync.classList.remove('hidden');
-                        
+
                         document.getElementById('sync-modal-title').textContent = "Sync Error";
                         document.getElementById('sync-results-summary').innerHTML = `<span style="color: #ef4444;">Unhandled Error:</span> ${err.toString()}`;
                     });
@@ -567,7 +578,7 @@ function setupListeners() {
                 }, 1000);
             }
         });
-        
+
         const closeSyncModal = () => modalSyncStatus.classList.add('hidden');
         btnCloseSyncModal.addEventListener('click', closeSyncModal);
         btnDoneSync.addEventListener('click', closeSyncModal);
@@ -627,7 +638,7 @@ function setupPreferencesListeners() {
     const themeSelector = document.getElementById('theme-selector');
     const themeOpts = themeSelector ? themeSelector.querySelectorAll('.theme-opt') : [];
     const inputFolderPrefix = document.getElementById('input-folder-prefix');
-    
+
     if (!modalPreferences || !btnPreferences) return;
 
     // Toggle active segment buttons on click
@@ -646,7 +657,7 @@ function setupPreferencesListeners() {
                         inputSyncFolder.value = res.sync_folder_name || "";
                         inputCopyEmpty.checked = res.copy_empty_folders || false;
                         inputCopyReadme.checked = res.copy_readme || false;
-                        
+
                         const activeTheme = res.theme || "system";
                         themeOpts.forEach(opt => {
                             if (opt.dataset.value === activeTheme) {
@@ -655,7 +666,7 @@ function setupPreferencesListeners() {
                                 opt.classList.remove('active');
                             }
                         });
-                        
+
                         inputFolderPrefix.value = res.sync_folder_prefix || "";
                     }
                     modalPreferences.classList.remove('hidden');
@@ -699,7 +710,7 @@ function setupPreferencesListeners() {
 window.addEventListener('pywebviewready', () => {
     setupListeners();
     loadDrives(); // Initially load drives
-    
+
     // Fetch and load startup directory path
     if (window.pywebview && window.pywebview.api && window.pywebview.api.get_startup_path) {
         window.pywebview.api.get_startup_path()
