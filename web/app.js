@@ -1,7 +1,12 @@
 // State variables
-let currentRelPath = ""; // Path relative to home directory
+let currentRelPath = ""; // Path relative to home or drive base
+let currentPath = ""; // Active absolute path
+let currentIsDrive = false; // Is the current path on a FreeWrite drive
+let currentParentPath = null; // Calculated parent path for the "Up" button
+let syncFolderName = ""; // Tracks currently active sync folder name
 let allItems = []; // All items in the current directory
 let selectedItem = null; // Currently selected item object
+let driveButtons = []; // Dynamic drive elements in the sidebar
 
 // DOM Elements
 const filesList = document.getElementById('files-list');
@@ -14,6 +19,7 @@ const btnClosePreview = document.getElementById('btn-close-preview');
 // Sidebar places buttons
 const places = {
     home: { btn: document.getElementById('btn-home'), path: "" },
+    sync: { btn: document.getElementById('btn-sync'), path: "" },
     desktop: { btn: document.getElementById('btn-desktop'), path: "Desktop" },
     documents: { btn: document.getElementById('btn-documents'), path: "Documents" },
     downloads: { btn: document.getElementById('btn-downloads'), path: "Downloads" }
@@ -60,19 +66,27 @@ function getFileIcon(item) {
 }
 
 // Render breadcrumbs/address segments
-function renderBreadcrumbs(relPath) {
+// Render breadcrumbs/address segments
+function renderBreadcrumbs(response) {
     addressSegments.innerHTML = '';
     
-    // Always start with Home
-    const homeSpan = document.createElement('span');
-    homeSpan.textContent = 'Home';
-    homeSpan.addEventListener('click', () => navigateToPath(""));
-    addressSegments.appendChild(homeSpan);
+    // Start segment: either "Home" or the drive name
+    const startSpan = document.createElement('span');
+    if (response.is_drive) {
+        startSpan.textContent = response.drive_name;
+        startSpan.addEventListener('click', () => navigateToPath(response.drive_base));
+    } else {
+        startSpan.textContent = 'Home';
+        startSpan.addEventListener('click', () => navigateToPath(""));
+    }
+    addressSegments.appendChild(startSpan);
     
-    if (!relPath) return;
+    if (!response.rel_path) return;
     
-    const parts = relPath.split('/').filter(p => p);
-    let accumPath = "";
+    const parts = response.rel_path.split(/[/\\]/).filter(p => p);
+    let accumPath = response.is_drive ? response.drive_base : "";
+    const isWindows = response.current_path.includes('\\') || (response.drive_base && response.drive_base.includes('\\'));
+    const separatorChar = isWindows ? '\\' : '/';
     
     parts.forEach(part => {
         const separator = document.createElement('span');
@@ -80,7 +94,11 @@ function renderBreadcrumbs(relPath) {
         separator.className = 'separator';
         addressSegments.appendChild(separator);
         
-        accumPath += (accumPath ? '/' : '') + part;
+        if (accumPath) {
+            accumPath += (accumPath.endsWith(separatorChar) ? '' : separatorChar) + part;
+        } else {
+            accumPath = part;
+        }
         const currentPathCopy = accumPath; // Closure snapshot
         
         const segment = document.createElement('span');
@@ -90,6 +108,7 @@ function renderBreadcrumbs(relPath) {
     });
 }
 
+// Load files in the directory
 // Load files in the directory
 function loadDirectory(subpath) {
     filesList.innerHTML = `
@@ -105,11 +124,39 @@ function loadDirectory(subpath) {
         window.pywebview.api.list_directory(subpath)
             .then(response => {
                 if (response.success) {
+                    currentPath = response.current_path;
+                    currentIsDrive = response.is_drive;
                     currentRelPath = response.rel_path;
+                    currentParentPath = response.parent_path;
+                    syncFolderName = response.sync_folder_name || "";
+                    
+                    // Update Sync Folder shortcut path and visibility
+                    if (syncFolderName) {
+                        places.sync.path = syncFolderName;
+                        places.sync.btn.classList.remove('hidden');
+                    } else {
+                        places.sync.btn.classList.add('hidden');
+                    }
+                    
                     allItems = response.items;
-                    renderBreadcrumbs(currentRelPath);
+                    
+                    renderBreadcrumbs(response);
                     renderFiles(allItems);
-                    updateSidebarHighlight(currentRelPath);
+                    loadDrives(); // Dynamically refresh drives
+                    
+                    // Enable/disable Up button based on whether we can go up
+                    const btnBack = document.getElementById('btn-back');
+                    if (currentParentPath !== null) {
+                        btnBack.disabled = false;
+                        btnBack.style.opacity = '1';
+                        btnBack.style.cursor = 'pointer';
+                    } else {
+                        btnBack.disabled = true;
+                        btnBack.style.opacity = '0.5';
+                        btnBack.style.cursor = 'not-allowed';
+                    }
+                    
+                    updateSidebarHighlight(response);
                 } else {
                     renderError(response.error || "Failed to load directory");
                 }
@@ -119,6 +166,60 @@ function loadDirectory(subpath) {
             });
     } else {
         renderError("Python API not ready. Are you running this in PyWebView?");
+    }
+}
+
+function loadDrives() {
+    if (window.pywebview && window.pywebview.api) {
+        window.pywebview.api.get_freewrite_drives()
+            .then(response => {
+                if (response.success) {
+                    renderDrives(response.drives);
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load drives:", err);
+            });
+    }
+}
+
+function renderDrives(drives) {
+    const sectionDrives = document.getElementById('section-drives');
+    const drivesList = document.getElementById('drives-list');
+    if (!sectionDrives || !drivesList) return;
+    
+    drivesList.innerHTML = '';
+    driveButtons = [];
+    
+    if (drives && drives.length > 0) {
+        sectionDrives.classList.remove('hidden');
+        drives.forEach(drive => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-item';
+            btn.innerHTML = `
+                <span class="item-icon">💾</span>
+                <span class="item-label">${drive.name}</span>
+            `;
+            btn.addEventListener('click', () => {
+                navigateToPath(drive.path);
+            });
+            drivesList.appendChild(btn);
+            driveButtons.push({ btn: btn, path: drive.path });
+        });
+        
+        // Highlight active drive if currently viewing a drive
+        if (currentIsDrive) {
+            const normalizedCurrent = currentPath.replace(/\\/g, '/');
+            const activeDrive = driveButtons.find(db => {
+                const normalizedDb = db.path.replace(/\\/g, '/');
+                return normalizedCurrent === normalizedDb || normalizedCurrent.startsWith(normalizedDb + '/');
+            });
+            if (activeDrive) {
+                activeDrive.btn.classList.add('active');
+            }
+        }
+    } else {
+        sectionDrives.classList.add('hidden');
     }
 }
 
@@ -164,6 +265,14 @@ function renderFiles(items) {
         row.addEventListener('click', (e) => {
             selectItem(index, row);
         });
+        
+        // Right Click Context Menu (Directories only)
+        if (item.is_dir) {
+            row.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showContextMenu(e, item);
+            });
+        }
         
         // Double Click -> Navigate folder or Preview file
         row.addEventListener('dblclick', () => {
@@ -241,19 +350,33 @@ function closePreview() {
 }
 
 // Update highlighting on sidebar folders
-function updateSidebarHighlight(relPath) {
+function updateSidebarHighlight(response) {
     // Reset all
     Object.values(places).forEach(p => p.btn.classList.remove('active'));
+    driveButtons.forEach(db => db.btn.classList.remove('active'));
     
-    // Match current path to preset paths
-    if (relPath === "") {
-        places.home.btn.classList.add('active');
-    } else if (relPath === "Desktop") {
-        places.desktop.btn.classList.add('active');
-    } else if (relPath === "Documents") {
-        places.documents.btn.classList.add('active');
-    } else if (relPath === "Downloads") {
-        places.downloads.btn.classList.add('active');
+    if (response.is_drive) {
+        const normalizedCurrent = response.current_path.replace(/\\/g, '/');
+        const activeDrive = driveButtons.find(db => {
+            const normalizedDb = db.path.replace(/\\/g, '/');
+            return normalizedCurrent === normalizedDb || normalizedCurrent.startsWith(normalizedDb + '/');
+        });
+        if (activeDrive) {
+            activeDrive.btn.classList.add('active');
+        }
+    } else {
+        const relPath = response.rel_path.replace(/\\/g, '/');
+        if (syncFolderName && (relPath === syncFolderName.replace(/\\/g, '/') || relPath.startsWith(syncFolderName.replace(/\\/g, '/') + '/'))) {
+            places.sync.btn.classList.add('active');
+        } else if (relPath === "") {
+            places.home.btn.classList.add('active');
+        } else if (relPath === "Desktop" || relPath.startsWith("Desktop/")) {
+            places.desktop.btn.classList.add('active');
+        } else if (relPath === "Documents" || relPath.startsWith("Documents/")) {
+            places.documents.btn.classList.add('active');
+        } else if (relPath === "Downloads" || relPath.startsWith("Downloads/")) {
+            places.downloads.btn.classList.add('active');
+        }
     }
 }
 
@@ -264,12 +387,9 @@ function setupListeners() {
     
     // Go Up button
     btnBack.addEventListener('click', () => {
-        if (!currentRelPath) return; // Already at home
-        
-        const segments = currentRelPath.split('/').filter(s => s);
-        segments.pop(); // Remove last segment
-        const parentPath = segments.join('/');
-        navigateToPath(parentPath);
+        if (currentParentPath !== null) {
+            navigateToPath(currentParentPath);
+        }
     });
     
     // Search input (instant client side filtering)
@@ -292,10 +412,146 @@ function setupListeners() {
             navigateToPath(place.path);
         });
     });
+
+    // Preferences modal listeners
+    setupPreferencesListeners();
+
+    // Setup Context Menu Action
+    const menuSetSync = document.getElementById('menu-set-sync');
+    if (menuSetSync) {
+        menuSetSync.addEventListener('click', () => {
+            if (menuSetSync.classList.contains('disabled') || !contextMenuItem) return;
+
+            const isCurrentSync = (contextMenuItem.rel_path.replace(/\\/g, '/').toLowerCase() === syncFolderName.replace(/\\/g, '/').toLowerCase());
+            // If already sync folder, toggle it off (set empty). Otherwise set it as sync folder.
+            const targetValue = isCurrentSync ? "" : contextMenuItem.rel_path;
+
+            if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
+                window.pywebview.api.save_preferences(targetValue)
+                    .then(res => {
+                        if (res.success) {
+                            closeContextMenu();
+                            loadDirectory(currentRelPath); // Refresh view to show updated highlighting / status
+                        } else {
+                            alert("Error updating sync folder: " + res.error);
+                        }
+                    });
+            }
+        });
+    }
+
+    // Dismiss context menu on click elsewhere
+    document.addEventListener('click', () => closeContextMenu());
+    document.addEventListener('contextmenu', (e) => {
+        if (!e.target.closest('.file-item')) {
+            closeContextMenu();
+        }
+    });
+}
+
+let contextMenuItem = null; // Tracks folder being acted upon
+
+function showContextMenu(e, item) {
+    const menu = document.getElementById('folder-context-menu');
+    const menuSetSync = document.getElementById('menu-set-sync');
+    const checkbox = document.getElementById('menu-sync-checkbox');
+    if (!menu) return;
+
+    contextMenuItem = item;
+
+    // Position menu near cursor
+    menu.style.left = `${e.clientX}px`;
+    menu.style.top = `${e.clientY}px`;
+
+    // Check if this folder is the active sync folder
+    const isCurrentSync = (item.rel_path.replace(/\\/g, '/').toLowerCase() === syncFolderName.replace(/\\/g, '/').toLowerCase());
+    checkbox.textContent = isCurrentSync ? '☑' : '☐';
+
+    // Disable sync mapping option if we are inside an external drive
+    if (currentIsDrive) {
+        menuSetSync.classList.add('disabled');
+        menuSetSync.style.opacity = '0.5';
+        menuSetSync.style.cursor = 'not-allowed';
+    } else {
+        menuSetSync.classList.remove('disabled');
+        menuSetSync.style.opacity = '1';
+        menuSetSync.style.cursor = 'pointer';
+    }
+
+    menu.classList.remove('hidden');
+}
+
+function closeContextMenu() {
+    const menu = document.getElementById('folder-context-menu');
+    if (menu) {
+        menu.classList.add('hidden');
+    }
+    contextMenuItem = null;
+}
+
+// Setup preferences modal listeners
+function setupPreferencesListeners() {
+    const modalPreferences = document.getElementById('modal-preferences');
+    const btnPreferences = document.getElementById('btn-preferences');
+    const btnClosePreferences = document.getElementById('btn-close-preferences');
+    const btnCancelPreferences = document.getElementById('btn-cancel-preferences');
+    const btnSavePreferences = document.getElementById('btn-save-preferences');
+    const inputSyncFolder = document.getElementById('input-sync-folder');
+    
+    if (!modalPreferences || !btnPreferences) return;
+
+    btnPreferences.addEventListener('click', () => {
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.get_preferences) {
+            window.pywebview.api.get_preferences()
+                .then(res => {
+                    if (res.success) {
+                        inputSyncFolder.value = res.sync_folder_name || "";
+                    }
+                    modalPreferences.classList.remove('hidden');
+                });
+        } else {
+            modalPreferences.classList.remove('hidden');
+        }
+    });
+
+    const closeModal = () => modalPreferences.classList.add('hidden');
+    btnClosePreferences.addEventListener('click', closeModal);
+    btnCancelPreferences.addEventListener('click', closeModal);
+
+    btnSavePreferences.addEventListener('click', () => {
+        const value = inputSyncFolder.value.trim();
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
+            window.pywebview.api.save_preferences(value)
+                .then(res => {
+                    if (res.success) {
+                        closeModal();
+                        navigateToPath(value); // Open/display the sync folder in the main window
+                    } else {
+                        alert("Error saving preferences: " + (res.error || "Unknown error"));
+                    }
+                })
+                .catch(err => {
+                    alert("Failed to save: " + err.toString());
+                });
+        }
+    });
 }
 
 // Start application
 window.addEventListener('pywebviewready', () => {
     setupListeners();
-    loadDirectory(""); // Load home directory initially
+    loadDrives(); // Initially load drives
+    
+    // Fetch and load startup directory path
+    if (window.pywebview && window.pywebview.api && window.pywebview.api.get_startup_path) {
+        window.pywebview.api.get_startup_path()
+            .then(path => {
+                loadDirectory(path || "");
+            })
+            .catch(() => {
+                loadDirectory("");
+            });
+    } else {
+        loadDirectory("");
+    }
 });

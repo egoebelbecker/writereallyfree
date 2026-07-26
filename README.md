@@ -38,7 +38,27 @@ sudo dnf install python3-gobject webkit2gtk4.0
 sudo pacman -S python-gobject webkit2gtk
 ```
 
-### 2. Python Virtual Environment Setup
+### 2. System Dependencies (macOS)
+
+On macOS, `pywebview` uses the native WebKit engine via Cocoa. When using a Python virtual environment, you need Python bindings for Objective-C:
+
+```bash
+pip install pywebview[cocoa]
+# This automatically installs the required pyobjc modules (such as pyobjc-framework-Cocoa and pyobjc-framework-WebKit)
+```
+
+### 3. System Dependencies (Windows)
+
+On Windows, `pywebview` renders windows using **WebView2** (Edge Chromium engine) and interfaces with the system via `.NET`.
+
+- **Runtime**: Windows 10 & 11 come with the **WebView2 Runtime** pre-installed. For older Windows versions, download and install the WebView2 Runtime from Microsoft's website.
+- **Python bindings**:
+  ```bash
+  pip install pywebview[winforms]
+  # This automatically installs pythonnet (the Python-to-.NET bridge)
+  ```
+
+### 4. Python Virtual Environment Setup
 
 Initialize and install Python packages using the local virtual environment:
 

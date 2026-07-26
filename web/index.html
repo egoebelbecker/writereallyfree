@@ -28,6 +28,11 @@
                         <span class="item-icon">🏠</span>
                         <span class="item-label">Home Directory</span>
                     </button>
+                    <!-- Sync Directory Shortcut -->
+                    <button class="nav-item hidden" id="btn-sync">
+                        <span class="item-icon">🔄</span>
+                        <span class="item-label">Sync Directory</span>
+                    </button>
                     <button class="nav-item" id="btn-desktop">
                         <span class="item-icon">🖥️</span>
                         <span class="item-label">Desktop</span>
@@ -41,13 +46,21 @@
                         <span class="item-label">Downloads</span>
                     </button>
                 </div>
+                
+                <div class="nav-section hidden" id="section-drives" style="margin-top: 24px;">
+                    <span class="section-title">Drives</span>
+                    <div id="drives-list" style="display: flex; flex-direction: column; gap: 4px;">
+                        <!-- Dynamic FreeWrite drives will be inserted here -->
+                    </div>
+                </div>
             </nav>
             
-            <div class="sidebar-footer">
+            <div class="sidebar-footer" style="display: flex; align-items: center; justify-content: space-between;">
                 <div class="connection-status">
                     <span class="status-indicator online"></span>
-                    <span class="status-text">Python Engine Connected</span>
+                    <span class="status-text">Connected</span>
                 </div>
+                <button class="settings-btn" id="btn-preferences" title="Preferences" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;">⚙️</button>
             </div>
         </aside>
 
@@ -117,6 +130,36 @@
                 </aside>
             </div>
         </main>
+    </div>
+
+    <!-- Preferences Modal -->
+    <div class="modal-backdrop hidden" id="modal-preferences">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">Preferences</h3>
+                <button class="close-btn" id="btn-close-preferences">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="input-sync-folder">Sync Folder Name</label>
+                    <p class="form-help">Enter the subfolder name under your Home directory where files should sync (e.g., <code>Writing</code>).</p>
+                    <input type="text" id="input-sync-folder" placeholder="e.g. Writing">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn btn-secondary" id="btn-cancel-preferences">Cancel</button>
+                <button class="modal-btn btn-primary" id="btn-save-preferences">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Folder Context Menu -->
+    <div class="context-menu hidden" id="folder-context-menu">
+        <div class="context-menu-item" id="menu-set-sync">
+            <span class="menu-icon">🔄</span>
+            <span class="menu-label">Set as Sync Folder</span>
+            <span class="menu-checkbox" id="menu-sync-checkbox">☐</span>
+        </div>
     </div>
 
     <script src="app.js"></script>
