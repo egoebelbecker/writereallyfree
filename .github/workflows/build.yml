@@ -86,7 +86,7 @@ jobs:
 
       - name: Build via PyInstaller
         run: |
-          pyinstaller --clean \
+          .venv/bin/pyinstaller --clean \
             --name WriteReallyFree \
             --add-data "web:web" \
             --windowed \
