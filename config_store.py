@@ -25,6 +25,8 @@ def load_config():
     defaults = {
         "sync_folder_name": "",
         "copy_empty_folders": False,
+        "copy_readme": False,
+        "theme": "system",
         "sync_folder_prefix": ""
     }
     if os.path.exists(config_path):

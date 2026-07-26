@@ -5,8 +5,23 @@ let currentIsDrive = false; // Is the current path on a FreeWrite drive
 let currentParentPath = null; // Calculated parent path for the "Up" button
 let syncFolderName = ""; // Tracks currently active sync folder name
 let copyEmptyFolders = false; // Tracks empty directory sync setting
+let copyReadme = false; // Tracks README copy setting
+let theme = "system"; // Tracks active theme setting
 let syncFolderPrefix = ""; // Tracks sync folder prefix setting
 let allItems = []; // All items in the current directory
+
+function applyTheme(themeName) {
+    const root = document.documentElement;
+    if (themeName === 'light') {
+        root.classList.add('light');
+        root.classList.remove('dark');
+    } else if (themeName === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+    } else {
+        root.classList.remove('light', 'dark');
+    }
+}
 let selectedItem = null; // Currently selected item object
 let driveButtons = []; // Dynamic drive elements in the sidebar
 
@@ -22,7 +37,6 @@ const btnClosePreview = document.getElementById('btn-close-preview');
 const places = {
     home: { btn: document.getElementById('btn-home'), path: "" },
     sync: { btn: document.getElementById('btn-sync'), path: "" },
-    desktop: { btn: document.getElementById('btn-desktop'), path: "Desktop" },
     documents: { btn: document.getElementById('btn-documents'), path: "Documents" },
     downloads: { btn: document.getElementById('btn-downloads'), path: "Downloads" }
 };
@@ -132,7 +146,10 @@ function loadDirectory(subpath) {
                     currentParentPath = response.parent_path;
                     syncFolderName = response.sync_folder_name || "";
                     copyEmptyFolders = response.copy_empty_folders || false;
+                    copyReadme = response.copy_readme || false;
+                    theme = response.theme || "system";
                     syncFolderPrefix = response.sync_folder_prefix || "";
+                    applyTheme(theme);
                     
                     // Update Sync Folder shortcut path and visibility
                     if (syncFolderName) {
@@ -374,8 +391,6 @@ function updateSidebarHighlight(response) {
             places.sync.btn.classList.add('active');
         } else if (relPath === "") {
             places.home.btn.classList.add('active');
-        } else if (relPath === "Desktop" || relPath.startsWith("Desktop/")) {
-            places.desktop.btn.classList.add('active');
         } else if (relPath === "Documents" || relPath.startsWith("Documents/")) {
             places.documents.btn.classList.add('active');
         } else if (relPath === "Downloads" || relPath.startsWith("Downloads/")) {
@@ -431,7 +446,7 @@ function setupListeners() {
             const targetValue = isCurrentSync ? "" : contextMenuItem.rel_path;
 
             if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-                window.pywebview.api.save_preferences(targetValue, copyEmptyFolders, syncFolderPrefix)
+                window.pywebview.api.save_preferences(targetValue, copyEmptyFolders, copyReadme, theme, syncFolderPrefix)
                     .then(res => {
                         if (res.success) {
                             closeContextMenu();
@@ -609,9 +624,20 @@ function setupPreferencesListeners() {
     const btnSavePreferences = document.getElementById('btn-save-preferences');
     const inputSyncFolder = document.getElementById('input-sync-folder');
     const inputCopyEmpty = document.getElementById('input-copy-empty');
+    const inputCopyReadme = document.getElementById('input-copy-readme');
+    const themeSelector = document.getElementById('theme-selector');
+    const themeOpts = themeSelector ? themeSelector.querySelectorAll('.theme-opt') : [];
     const inputFolderPrefix = document.getElementById('input-folder-prefix');
     
     if (!modalPreferences || !btnPreferences) return;
+
+    // Toggle active segment buttons on click
+    themeOpts.forEach(opt => {
+        opt.addEventListener('click', () => {
+            themeOpts.forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
+        });
+    });
 
     btnPreferences.addEventListener('click', () => {
         if (window.pywebview && window.pywebview.api && window.pywebview.api.get_preferences) {
@@ -620,6 +646,17 @@ function setupPreferencesListeners() {
                     if (res.success) {
                         inputSyncFolder.value = res.sync_folder_name || "";
                         inputCopyEmpty.checked = res.copy_empty_folders || false;
+                        inputCopyReadme.checked = res.copy_readme || false;
+                        
+                        const activeTheme = res.theme || "system";
+                        themeOpts.forEach(opt => {
+                            if (opt.dataset.value === activeTheme) {
+                                opt.classList.add('active');
+                            } else {
+                                opt.classList.remove('active');
+                            }
+                        });
+                        
                         inputFolderPrefix.value = res.sync_folder_prefix || "";
                     }
                     modalPreferences.classList.remove('hidden');
@@ -636,11 +673,16 @@ function setupPreferencesListeners() {
     btnSavePreferences.addEventListener('click', () => {
         const value = inputSyncFolder.value.trim();
         const copyEmpty = inputCopyEmpty.checked;
+        const copyReadmeVal = inputCopyReadme.checked;
+        const activeOpt = themeSelector ? themeSelector.querySelector('.theme-opt.active') : null;
+        const themeVal = activeOpt ? activeOpt.dataset.value : "system";
         const folderPrefix = inputFolderPrefix.value;
         if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-            window.pywebview.api.save_preferences(value, copyEmpty, folderPrefix)
+            window.pywebview.api.save_preferences(value, copyEmpty, copyReadmeVal, themeVal, folderPrefix)
                 .then(res => {
                     if (res.success) {
+                        theme = themeVal;
+                        applyTheme(theme);
                         closeModal();
                         navigateToPath(value); // Open/display the sync folder in the main window
                     } else {

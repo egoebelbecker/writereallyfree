@@ -13,6 +13,8 @@ class HomeExplorerAPI:
         config = load_config()
         self.sync_folder_name = config.get("sync_folder_name", "")
         self.copy_empty_folders = config.get("copy_empty_folders", False)
+        self.copy_readme = config.get("copy_readme", False)
+        self.theme = config.get("theme", "system")
         self.sync_folder_prefix = config.get("sync_folder_prefix", "")
 
     def get_home_path(self):
@@ -33,14 +35,15 @@ class HomeExplorerAPI:
             "success": True,
             "sync_folder_name": self.sync_folder_name,
             "copy_empty_folders": self.copy_empty_folders,
+            "copy_readme": self.copy_readme,
+            "theme": self.theme,
             "sync_folder_prefix": self.sync_folder_prefix
         }
 
-    def save_preferences(self, sync_folder_name, copy_empty_folders=False, sync_folder_prefix=""):
+    def save_preferences(self, sync_folder_name, copy_empty_folders=False, copy_readme=False, theme="system", sync_folder_prefix=""):
         """API Endpoint to save preferences and ensure folders exist."""
         try:
             sync_folder_name = sync_folder_name.strip().strip("/").strip("\\")
-            sync_folder_prefix = sync_folder_prefix.strip()
             
             # Ensure the directory exists under Home directory if specified
             if sync_folder_name:
@@ -52,15 +55,19 @@ class HomeExplorerAPI:
             save_config({
                 "sync_folder_name": sync_folder_name,
                 "copy_empty_folders": copy_empty_folders,
+                "copy_readme": copy_readme,
+                "theme": theme,
                 "sync_folder_prefix": sync_folder_prefix
             })
             
             self.sync_folder_name = sync_folder_name
             self.copy_empty_folders = copy_empty_folders
+            self.copy_readme = copy_readme
+            self.theme = theme
             self.sync_folder_prefix = sync_folder_prefix
             
             self.freewrite_manager.update_sync_settings(
-                sync_folder_name, copy_empty_folders, sync_folder_prefix
+                sync_folder_name, copy_empty_folders, copy_readme, sync_folder_prefix
             )
             return {"success": True}
         except Exception as e:
@@ -75,6 +82,7 @@ class HomeExplorerAPI:
             self.freewrite_manager.update_sync_settings(
                 config.get("sync_folder_name", ""),
                 config.get("copy_empty_folders", False),
+                config.get("copy_readme", False),
                 config.get("sync_folder_prefix", "")
             )
             
@@ -211,6 +219,8 @@ class HomeExplorerAPI:
                 "parent_path": parent_path,
                 "sync_folder_name": self.sync_folder_name,
                 "copy_empty_folders": self.copy_empty_folders,
+                "copy_readme": self.copy_readme,
+                "theme": self.theme,
                 "sync_folder_prefix": self.sync_folder_prefix,
                 "items": items
             }

@@ -34,6 +34,57 @@
     --font-mono: 'JetBrains Mono', monospace;
 }
 
+/* Light Mode Variable Set */
+:root.light {
+    --bg-app: #f8fafc;
+    --bg-sidebar: #f1f5f9;
+    --bg-card: rgba(255, 255, 255, 0.7);
+    --bg-hover: rgba(226, 232, 240, 0.5);
+    --bg-active: rgba(99, 102, 241, 0.1);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    --accent: #4f46e5;
+    --accent-glow: rgba(79, 70, 229, 0.2);
+    --accent-emerald: #059669;
+    --accent-amber: #d97706;
+    --accent-rose: #e11d48;
+    
+    --border: rgba(203, 213, 225, 0.8);
+    --border-highlight: rgba(79, 70, 229, 0.2);
+    
+    --shadow-premium: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
+}
+
+/* System Default Light Mode */
+@media (prefers-color-scheme: light) {
+    :root:not(.dark) {
+        --bg-app: #f8fafc;
+        --bg-sidebar: #f1f5f9;
+        --bg-card: rgba(255, 255, 255, 0.7);
+        --bg-hover: rgba(226, 232, 240, 0.5);
+        --bg-active: rgba(99, 102, 241, 0.1);
+        
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        
+        --accent: #4f46e5;
+        --accent-glow: rgba(79, 70, 229, 0.2);
+        --accent-emerald: #059669;
+        --accent-amber: #d97706;
+        --accent-rose: #e11d48;
+        
+        --border: rgba(203, 213, 225, 0.8);
+        --border-highlight: rgba(79, 70, 229, 0.2);
+        
+        --shadow-premium: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
+    }
+}
+
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -788,4 +839,41 @@ body {
     font-family: var(--font-mono);
     color: var(--accent);
 }
+
+/* Segmented Theme Switcher Control */
+.theme-selector-segmented {
+    display: flex;
+    background-color: var(--bg-sidebar);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    margin-top: 6px;
+}
+
+.theme-opt {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: calc(var(--radius-md) - 2px);
+    transition: all 0.2s ease;
+    text-align: center;
+    font-family: var(--font-sans);
+}
+
+.theme-opt.active {
+    background-color: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.theme-opt:hover:not(.active) {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
 

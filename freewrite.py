@@ -19,11 +19,13 @@ class FreeWriteDriveManager:
         config = load_config()
         self.sync_folder_name = config.get("sync_folder_name", "")
         self.copy_empty_folders = config.get("copy_empty_folders", False)
+        self.copy_readme = config.get("copy_readme", False)
         self.sync_folder_prefix = config.get("sync_folder_prefix", "")
 
-    def update_sync_settings(self, name, copy_empty_folders, prefix):
+    def update_sync_settings(self, name, copy_empty_folders, copy_readme, prefix):
         self.sync_folder_name = name
         self.copy_empty_folders = copy_empty_folders
+        self.copy_readme = copy_readme
         self.sync_folder_prefix = prefix
 
     def get_drives(self):
@@ -144,6 +146,9 @@ class FreeWriteDriveManager:
 
                 for file in files:
                     if file.startswith('.'):
+                        continue
+
+                    if not self.copy_readme and file.lower() == 'readme.txt' and root == drive_path:
                         continue
 
                     src_file = os.path.join(root, file)

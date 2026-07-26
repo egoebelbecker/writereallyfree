@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReallyFree - Home Explorer</title>
+    <title>WriteReallyFree</title>
     <!-- Modern Typography: Google Fonts (Outfit & JetBrains Mono for preview) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,10 +33,7 @@
                         <span class="item-icon">🔄</span>
                         <span class="item-label">Sync Directory</span>
                     </button>
-                    <button class="nav-item" id="btn-desktop">
-                        <span class="item-icon">🖥️</span>
-                        <span class="item-label">Desktop</span>
-                    </button>
+
                     <button class="nav-item" id="btn-documents">
                         <span class="item-icon">📄</span>
                         <span class="item-label">Documents</span>
@@ -156,6 +153,18 @@
                 <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
                     <input type="checkbox" id="input-copy-empty" style="width: auto; cursor: pointer;">
                     <label for="input-copy-empty" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Copy Empty Folders</label>
+                </div>
+                <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
+                    <input type="checkbox" id="input-copy-readme" style="width: auto; cursor: pointer;">
+                    <label for="input-copy-readme" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Copy README.txt</label>
+                </div>
+                <div class="form-group">
+                    <label>Theme</label>
+                    <div class="theme-selector-segmented" id="theme-selector">
+                        <button type="button" class="theme-opt" data-value="system">System</button>
+                        <button type="button" class="theme-opt" data-value="dark">Dark</button>
+                        <button type="button" class="theme-opt" data-value="light">Light</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="input-folder-prefix">Folder Prefix (Optional)</label>
