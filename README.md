@@ -1,15 +1,7 @@
-# ReallyFree - Home Explorer
+# ReallyFree - FreeWrite explorer.
 
-A modern, cross-platform desktop application built with **PyWebView** that allows secure exploration of your home directory right from a sleek, dark-themed, glassmorphic UI.
+A work in progress.
 
-## Features
-
-- 🏠 **Quick Access places:** Easily jump to Home, Desktop, Documents, or Downloads.
-- 📂 **Directory Traversal:** Double click folders to enter, or use the path breadcrumbs and "Up" button to navigate.
-- 🔍 **Real-time Filter:** Instant search filtering of files in the current folder.
-- 📄 **Text Previews:** Select any compatible text-based file (like `.txt`, `.md`, `.py`, `.js`, `.json`, etc.) to view its content dynamically in the preview pane.
-- 🛡️ **Secure Backend:** Restricts file access strictly to subfolders of the user's home directory, avoiding accidental navigation to system root folders.
-- 💅 **Premium UI:** Custom typography (Outfit & JetBrains Mono), responsive flex grids, custom scrollbars, and fine hover micro-animations.
 
 ## Prerequisites & Installation
 
@@ -82,3 +74,7 @@ python app.py
 ```
 
 To close the app, simply close the desktop window.
+
+## License
+
+This project is licensed under the terms of the GNU General Public License v3.0. See [LICENSE](LICENSE) for the full text.
