@@ -34,6 +34,7 @@ fi
 for libdir in /usr/lib/x86_64-linux-gnu /usr/lib64 /usr/lib; do
     if [ -d "$libdir" ]; then
         cp -d "$libdir"/libxcb-*.so* "$TARGET_LIB_DIR/" 2>/dev/null || true
+        cp -d "$libdir"/libxkbcommon*.so* "$TARGET_LIB_DIR/" 2>/dev/null || true
     fi
 done
 
