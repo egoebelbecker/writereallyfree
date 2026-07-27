@@ -9,6 +9,7 @@ APP_DIR="$BUILD_DIR/WriteReallyFree.AppDir"
 rm -rf "$BUILD_DIR"
 mkdir -p "$APP_DIR/usr/bin"
 mkdir -p "$APP_DIR/usr/share/icons/hicolor/256x256/apps"
+mkdir -p "$APP_DIR/usr/share/metainfo"
 
 # 2. Build via PyInstaller
 echo "Installing pyinstaller if missing..."
@@ -24,8 +25,8 @@ echo "Running PyInstaller compilation..."
 # Copy pyinstaller output to AppDir
 cp -r dist/writereallyfree "$APP_DIR/usr/bin/"
 
-# Bundle system libxcb helper libraries into AppDir so Qt platform plugin (libqxcb.so) works everywhere
-echo "Bundling XCB system libraries for Qt..."
+# Bundle system libxcb & libxkbcommon helper libraries into AppDir so Qt platform plugin (libqxcb.so) works everywhere
+echo "Bundling XCB & XKB system libraries for Qt..."
 TARGET_LIB_DIR="$APP_DIR/usr/bin/writereallyfree/_internal"
 if [ ! -d "$TARGET_LIB_DIR" ]; then
     TARGET_LIB_DIR="$APP_DIR/usr/bin/writereallyfree"
@@ -38,10 +39,14 @@ for libdir in /usr/lib/x86_64-linux-gnu /usr/lib64 /usr/lib; do
     fi
 done
 
-# 3. Setup Desktop file & Icons
+# 3. Setup Desktop file, Icons & AppStream Metainfo
 cp "$SCRIPT_DIR/writereallyfree.desktop" "$APP_DIR/"
 cp web/icon.png "$APP_DIR/writereallyfree.png"
 cp web/icon.png "$APP_DIR/usr/share/icons/hicolor/256x256/apps/writereallyfree.png"
+if [ -f "$SCRIPT_DIR/io.github.egoebelbecker.writereallyfree.appdata.xml" ]; then
+    cp "$SCRIPT_DIR/io.github.egoebelbecker.writereallyfree.appdata.xml" "$APP_DIR/usr/share/metainfo/"
+    cp "$SCRIPT_DIR/io.github.egoebelbecker.writereallyfree.appdata.xml" "$APP_DIR/io.github.egoebelbecker.writereallyfree.appdata.xml"
+fi
 
 # Create custom AppRun script
 cat << 'EOF' > "$APP_DIR/AppRun"
