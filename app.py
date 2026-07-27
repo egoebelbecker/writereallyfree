@@ -6,12 +6,13 @@ from windows import get_windows_volume_label
 from freewrite import FreeWriteDriveManager
 from config_store import load_config
 
+APP_VERSION = "v0.2.1"
 class HomeExplorerAPI:
     def __init__(self):
         self.home_dir = os.path.expanduser('~')
         self.freewrite_manager = FreeWriteDriveManager()
         config = load_config()
-        self.version = os.getenv('APP_VERSION', 'dev')
+        self.version = APP_VERSION
         self.sync_folder_name = config.get("sync_folder_name", "")
         self.copy_empty_folders = config.get("copy_empty_folders", False)
         self.copy_readme = config.get("copy_readme", False)

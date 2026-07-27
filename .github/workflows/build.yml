@@ -27,6 +27,7 @@ jobs:
           python -m venv .venv
           .venv/bin/pip install --upgrade pip
           .venv/bin/pip install -r requirements.txt
+          sed -i 's/^APP_VERSION = .*/APP_VERSION = "${{ github.ref_name }}"/' app.py
 
       - name: Run Tests
         run: |
