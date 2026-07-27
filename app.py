@@ -48,7 +48,26 @@ class HomeExplorerAPI:
     def open_external(self, url):
         """Open a URL in the system's default browser."""
         try:
-            webbrowser.open(url)
+            # PyInstaller & AppImage override LD_LIBRARY_PATH, PYTHONPATH, etc.,
+            # which prevents external binaries like xdg-open/browser from running.
+            env = os.environ.copy()
+            if "LD_LIBRARY_PATH_ORIG" in env:
+                env["LD_LIBRARY_PATH"] = env["LD_LIBRARY_PATH_ORIG"]
+            else:
+                env.pop("LD_LIBRARY_PATH", None)
+
+            if "PATH_ORIG" in env:
+                env["PATH"] = env["PATH_ORIG"]
+
+            env.pop("PYTHONPATH", None)
+            env.pop("PYTHONHOME", None)
+
+            if sys.platform.startswith("linux"):
+                import subprocess
+
+                subprocess.Popen(["xdg-open", url], env=env)
+            else:
+                webbrowser.open(url)
             return {"success": True}
         except Exception as e:
             return {"success": False, "error": str(e)}
