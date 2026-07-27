@@ -11,6 +11,7 @@ class HomeExplorerAPI:
         self.home_dir = os.path.expanduser('~')
         self.freewrite_manager = FreeWriteDriveManager()
         config = load_config()
+        self.version = os.getenv('APP_VERSION', 'dev')
         self.sync_folder_name = config.get("sync_folder_name", "")
         self.copy_empty_folders = config.get("copy_empty_folders", False)
         self.copy_readme = config.get("copy_readme", False)
@@ -31,7 +32,7 @@ class HomeExplorerAPI:
         return ""
 
     def get_preferences(self):
-        """Fetch saved configuration preferences."""
+        """Fetch saved configuration preferences, including app version."""
         return {
             "success": True,
             "sync_folder_name": self.sync_folder_name,
@@ -39,7 +40,8 @@ class HomeExplorerAPI:
             "copy_readme": self.copy_readme,
             "theme": self.theme,
             "sync_folder_prefix": self.sync_folder_prefix,
-            "convert_to_docx": self.convert_to_docx
+            "convert_to_docx": self.convert_to_docx,
+            "version": getattr(self, "version", "dev")
         }
 
     def save_preferences(self, sync_folder_name, copy_empty_folders=False, copy_readme=False, theme="system", sync_folder_prefix="", convert_to_docx=False):

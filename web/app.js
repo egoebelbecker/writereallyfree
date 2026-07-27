@@ -659,6 +659,11 @@ function setupPreferencesListeners() {
                     if (res.success) {
                         inputSyncFolder.value = res.sync_folder_name || "";
                         inputCopyEmpty.checked = res.copy_empty_folders || false;
+                        // Set version display if element exists
+                        const versionEl = document.getElementById('version-display');
+                        if (versionEl) {
+                            versionEl.textContent = res.version || '';
+                        }
                         inputCopyReadme.checked = res.copy_readme || false;
                         if (inputConvertDocx) {
                             inputConvertDocx.checked = res.convert_to_docx || false;
