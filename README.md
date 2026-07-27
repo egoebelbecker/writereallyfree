@@ -1,11 +1,12 @@
 # WriteReallyFree - FreeWrite explorer
 
-This is a work in progress. The current version will synchronize text files on a FreeWrite device to a configured directory on a Linux or Mac PC. Windows cominf soon.
+This is a work in progress. The current version synchronizes text files from a FreeWrite device to a configured directory on a Linux or Mac PC. (Windows coming soon - I need a way to test it.)
 
-A future version will also option convert the text files to docx or odt.
+It will optionally convert the files to .docx, supporting any markdown formatting you have in there, too,
 
 
-## Prerequisites & Installation
+
+## Prerequisites
 
 ### 1. System Dependencies (Linux)
 
@@ -40,6 +41,7 @@ On macOS, `pywebview` uses the native WebKit engine via Cocoa. When using a Pyth
 pip install pywebview[cocoa]
 # This automatically installs the required pyobjc modules (such as pyobjc-framework-Cocoa and pyobjc-framework-WebKit)
 ```
+But you can download a DMG and just run the app.
 
 ### 3. System Dependencies (Windows - not packaged yet)
 
@@ -51,6 +53,8 @@ On Windows, `pywebview` renders windows using **WebView2** (Edge Chromium engine
   pip install pywebview[winforms]
   # This automatically installs pythonnet (the Python-to-.NET bridge)
   ```
+
+So, you can check out the code and run it. It should work.
 
 ### 4. Python Virtual Environment Setup
 
@@ -67,7 +71,21 @@ source .venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
-## Running the Application
+## Installing the Packages
+
+### Linux
+
+Download the AppImage from the releases page. Unzip it. Run the file. If you like it, use your favoirte AppImage manager to add it to your desktop environment.
+
+(I like [GearLever](https://github.com/mijorus/gearlever))
+
+###
+
+Download the DMG. Uncompress it. Open the DMG and run it from there. If you like it, drag it over to Applications.
+
+
+
+## Running the Application from the repository
 
 Ensure your virtual environment is active, then launch the entry script:
 
