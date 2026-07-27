@@ -2,4 +2,7 @@ pywebview
 PyQt5
 PyQtWebEngine
 qtpy
+markdown
+beautifulsoup4
+python-docx
 pytest

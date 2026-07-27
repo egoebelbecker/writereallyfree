@@ -8,6 +8,7 @@ let copyEmptyFolders = false; // Tracks empty directory sync setting
 let copyReadme = false; // Tracks README copy setting
 let theme = "system"; // Tracks active theme setting
 let syncFolderPrefix = ""; // Tracks sync folder prefix setting
+let convertToDocx = false; // Tracks convert to DOCX sync setting
 let allItems = []; // All items in the current directory
 
 function applyTheme(themeName) {
@@ -148,6 +149,7 @@ function loadDirectory(subpath) {
                     copyReadme = response.copy_readme || false;
                     theme = response.theme || "system";
                     syncFolderPrefix = response.sync_folder_prefix || "";
+                    convertToDocx = response.convert_to_docx || false;
                     applyTheme(theme);
 
                     // Update Sync Folder shortcut path and visibility
@@ -638,6 +640,7 @@ function setupPreferencesListeners() {
     const themeSelector = document.getElementById('theme-selector');
     const themeOpts = themeSelector ? themeSelector.querySelectorAll('.theme-opt') : [];
     const inputFolderPrefix = document.getElementById('input-folder-prefix');
+    const inputConvertDocx = document.getElementById('input-convert-docx');
 
     if (!modalPreferences || !btnPreferences) return;
 
@@ -657,6 +660,9 @@ function setupPreferencesListeners() {
                         inputSyncFolder.value = res.sync_folder_name || "";
                         inputCopyEmpty.checked = res.copy_empty_folders || false;
                         inputCopyReadme.checked = res.copy_readme || false;
+                        if (inputConvertDocx) {
+                            inputConvertDocx.checked = res.convert_to_docx || false;
+                        }
 
                         const activeTheme = res.theme || "system";
                         themeOpts.forEach(opt => {
@@ -687,11 +693,13 @@ function setupPreferencesListeners() {
         const activeOpt = themeSelector ? themeSelector.querySelector('.theme-opt.active') : null;
         const themeVal = activeOpt ? activeOpt.dataset.value : "system";
         const folderPrefix = inputFolderPrefix.value;
+        const convertToDocxVal = inputConvertDocx ? inputConvertDocx.checked : false;
         if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-            window.pywebview.api.save_preferences(value, copyEmpty, copyReadmeVal, themeVal, folderPrefix)
+            window.pywebview.api.save_preferences(value, copyEmpty, copyReadmeVal, themeVal, folderPrefix, convertToDocxVal)
                 .then(res => {
                     if (res.success) {
                         theme = themeVal;
+                        convertToDocx = convertToDocxVal;
                         applyTheme(theme);
                         closeModal();
                         navigateToPath(value); // Open/display the sync folder in the main window

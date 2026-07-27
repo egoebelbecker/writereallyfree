@@ -16,6 +16,7 @@ class HomeExplorerAPI:
         self.copy_readme = config.get("copy_readme", False)
         self.theme = config.get("theme", "system")
         self.sync_folder_prefix = config.get("sync_folder_prefix", "")
+        self.convert_to_docx = config.get("convert_to_docx", False)
 
     def get_home_path(self):
         """Returns the absolute path of the home directory."""
@@ -37,10 +38,11 @@ class HomeExplorerAPI:
             "copy_empty_folders": self.copy_empty_folders,
             "copy_readme": self.copy_readme,
             "theme": self.theme,
-            "sync_folder_prefix": self.sync_folder_prefix
+            "sync_folder_prefix": self.sync_folder_prefix,
+            "convert_to_docx": self.convert_to_docx
         }
 
-    def save_preferences(self, sync_folder_name, copy_empty_folders=False, copy_readme=False, theme="system", sync_folder_prefix=""):
+    def save_preferences(self, sync_folder_name, copy_empty_folders=False, copy_readme=False, theme="system", sync_folder_prefix="", convert_to_docx=False):
         """Save preferences and ensure folders exist."""
         try:
             sync_folder_name = sync_folder_name.strip().strip("/").strip("\\")
@@ -57,7 +59,8 @@ class HomeExplorerAPI:
                 "copy_empty_folders": copy_empty_folders,
                 "copy_readme": copy_readme,
                 "theme": theme,
-                "sync_folder_prefix": sync_folder_prefix
+                "sync_folder_prefix": sync_folder_prefix,
+                "convert_to_docx": convert_to_docx
             })
             
             self.sync_folder_name = sync_folder_name
@@ -65,9 +68,10 @@ class HomeExplorerAPI:
             self.copy_readme = copy_readme
             self.theme = theme
             self.sync_folder_prefix = sync_folder_prefix
+            self.convert_to_docx = convert_to_docx
             
             self.freewrite_manager.update_sync_settings(
-                sync_folder_name, copy_empty_folders, copy_readme, sync_folder_prefix
+                sync_folder_name, copy_empty_folders, copy_readme, sync_folder_prefix, convert_to_docx
             )
             return {"success": True}
         except Exception as e:
@@ -83,7 +87,8 @@ class HomeExplorerAPI:
                 config.get("sync_folder_name", ""),
                 config.get("copy_empty_folders", False),
                 config.get("copy_readme", False),
-                config.get("sync_folder_prefix", "")
+                config.get("sync_folder_prefix", ""),
+                config.get("convert_to_docx", False)
             )
             
             return self.freewrite_manager.sync_drives()
@@ -221,6 +226,7 @@ class HomeExplorerAPI:
                 "copy_readme": self.copy_readme,
                 "theme": self.theme,
                 "sync_folder_prefix": self.sync_folder_prefix,
+                "convert_to_docx": self.convert_to_docx,
                 "items": items
             }
         except Exception as e:

@@ -27,7 +27,8 @@ def load_config():
         "copy_empty_folders": False,
         "copy_readme": False,
         "theme": "system",
-        "sync_folder_prefix": ""
+        "sync_folder_prefix": "",
+        "convert_to_docx": False
     }
     if os.path.exists(config_path):
         try:

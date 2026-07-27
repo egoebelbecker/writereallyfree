@@ -18,10 +18,12 @@ def test_update_sync_settings(monkeypatch):
         "sync_folder_name": "",
         "copy_empty_folders": False,
         "copy_readme": False,
-        "sync_folder_prefix": ""
+        "sync_folder_prefix": "",
+        "convert_to_docx": False
     })
 
     mgr = FreeWriteDriveManager()
-    mgr.update_sync_settings('name', True, True, 'pre_')
+    mgr.update_sync_settings('name', True, True, 'pre_', True)
     assert mgr.sync_folder_name == 'name'
     assert mgr.copy_empty_folders is True
+    assert mgr.convert_to_docx is True

@@ -21,12 +21,14 @@ class FreeWriteDriveManager:
         self.copy_empty_folders = config.get("copy_empty_folders", False)
         self.copy_readme = config.get("copy_readme", False)
         self.sync_folder_prefix = config.get("sync_folder_prefix", "")
+        self.convert_to_docx = config.get("convert_to_docx", False)
 
-    def update_sync_settings(self, name, copy_empty_folders, copy_readme, prefix):
+    def update_sync_settings(self, name, copy_empty_folders, copy_readme, prefix, convert_to_docx=False):
         self.sync_folder_name = name
         self.copy_empty_folders = copy_empty_folders
         self.copy_readme = copy_readme
         self.sync_folder_prefix = prefix
+        self.convert_to_docx = convert_to_docx
 
     def get_drives(self):
         """Scans the system for mounted drives named FreeWrite, Traveler, or Alpha."""
@@ -117,7 +119,7 @@ class FreeWriteDriveManager:
             try:
                 with open(filepath, 'rb') as f:
                     for chunk in iter(lambda: f.read(4096), b''):
-                         hasher.update(chunk)
+                        hasher.update(chunk)
                 return hasher.hexdigest()
             except Exception:
                 return None
@@ -170,6 +172,13 @@ class FreeWriteDriveManager:
 
                         if src_hash == dest_hash:
                             synced_files.append({"file": mapped_rel_path, "status": "identical"})
+                            if self.convert_to_docx:
+                                ext = os.path.splitext(dest_file)[1].lower()
+                                if ext in ('.txt', '.md', '.markdown'):
+                                    docx_file = os.path.splitext(dest_file)[0] + '.docx'
+                                    if not os.path.exists(docx_file):
+                                        from convert_doc import create_word_document
+                                        create_word_document(dest_dir, file)
                             continue
 
                         # Perform the copy
@@ -179,6 +188,11 @@ class FreeWriteDriveManager:
                         post_dest_hash = get_checksum(dest_file)
                         if src_hash == post_dest_hash:
                             synced_files.append({"file": mapped_rel_path, "status": "copied"})
+                            if self.convert_to_docx:
+                                ext = os.path.splitext(dest_file)[1].lower()
+                                if ext in ('.txt', '.md', '.markdown'):
+                                    from convert_doc import create_word_document
+                                    create_word_document(dest_dir, file)
                         else:
                             failed_files.append({"file": mapped_rel_path, "error": "Checksum verification failed after copy."})
 
