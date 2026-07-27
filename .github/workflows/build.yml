@@ -36,6 +36,9 @@ jobs:
         run: |
           chmod +x packaging/build_appimage.sh
           ./packaging/build_appimage.sh
+      - name: Rename AppImage with tag
+        run: |
+          mv WriteReallyFree-x86_64.AppImage WriteReallyFree-${{ github.ref_name }}-x86_64.AppImage
 
       - name: Upload AppImage Artifact
         uses: actions/upload-artifact@v4
@@ -107,12 +110,15 @@ jobs:
             --app-drop-link 425 120 \
             "dist/WriteReallyFree.dmg" \
             "dist/WriteReallyFree.app"
+      - name: Rename DMG with tag
+        run: |
+          mv dist/WriteReallyFree.dmg dist/WriteReallyFree-${{ github.ref_name }}.dmg
 
       - name: Upload DMG Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WriteReallyFree-macOS-DMG
-          path: dist/WriteReallyFree.dmg
+          name: WriteReallyFree-macOS-DMG-${{ github.ref_name }}
+          path: dist/WriteReallyFree-${{ github.ref_name }}.dmg
           if-no-files-found: error
 
   release:
@@ -126,18 +132,18 @@ jobs:
       - name: Download Linux AppImage
         uses: actions/download-artifact@v4
         with:
-          name: WriteReallyFree-Linux-AppImage
+          name: WriteReallyFree-Linux-AppImage-${{ github.ref_name }}
           path: ./artifacts
 
       - name: Download macOS DMG
         uses: actions/download-artifact@v4
         with:
-          name: WriteReallyFree-macOS-DMG
+          name: WriteReallyFree-macOS-DMG-${{ github.ref_name }}
           path: ./artifacts
 
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ./artifacts/WriteReallyFree-x86_64.AppImage
-            ./artifacts/WriteReallyFree.dmg
+            ./artifacts/WriteReallyFree-${{ github.ref_name }}-x86_64.AppImage
+            ./artifacts/WriteReallyFree-${{ github.ref_name }}.dmg
