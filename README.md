@@ -75,7 +75,7 @@ pip3 install -r requirements.txt
 
 ### Linux
 
-Download the AppImage from the releases page. Unzip it. Run the file. If you like it, use your favoirte AppImage manager to add it to your desktop environment.
+Download the AppImage from the releases page. Unzip it. Run the file. If you like it, use your favorite AppImage manager to add it to your desktop environment.
 
 (I like [GearLever](https://github.com/mijorus/gearlever))
 
