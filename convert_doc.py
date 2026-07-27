@@ -1,23 +1,15 @@
 """
-Markdown to DOCX Converter with README Link Support
-Version: 1.1
-Author: Craig Wilson
-Date: 2025-02-20
-Description:
-    This script reads a Markdown README file, extracts links to other markdown documents,
-    converts each to HTML using the `markdown` module with table support,
-    then parses the HTML using BeautifulSoup to construct a Word document
-    using python-docx. The output is a consolidated DOCX representing all linked content.
+
+This file owes a lot to Craig Wilson over here:
+https://www.craigwilson.blog/post/2025/2025-02-20-creatingwordfrommd/
+
+But I've removed his code that traversed links and handled tables and
+added support for a few other tags.
 
 Dependencies:
     - markdown
     - beautifulsoup4
     - python-docx
-Usage:
-    python md_to_docx.py <root_folder> <readme_path> <output_docx>
-
-Example:
-    python md_to_docx.py ./docs ./docs/README.md ./output/architecture.docx
 """
 
 import os
@@ -25,9 +17,11 @@ import sys
 import re
 import markdown
 from bs4 import BeautifulSoup
+import docx
 from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.shared import RGBColor
 
 
 def change_extension_to_docx(filename):
@@ -47,14 +41,48 @@ def change_extension_to_docx(filename):
         return f"{filename}.docx"
     return f"{base}.docx"
 
+def add_hyperlink_to_paragraph(paragraph, url, anchor_node, bold=False, italic=False):
+    """
+    Adds a hyperlink with correct style and nested formatting to a paragraph.
+    """
+    part = paragraph.part
+    r_id = part.relate_to(url, docx.opc.constants.RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
+    
+    hyperlink_el = OxmlElement('w:hyperlink')
+    hyperlink_el.set(qn('r:id'), r_id)
+    
+    def traverse_link_node(node, current_bold=False, current_italic=False):
+        if node.name is None:
+            r_el = OxmlElement('w:r')
+            run = docx.text.run.Run(r_el, paragraph)
+            run.text = str(node)
+            run.underline = True
+            run.font.color.rgb = RGBColor(0, 0, 238)
+            if current_bold:
+                run.bold = True
+            if current_italic:
+                run.italic = True
+            hyperlink_el.append(r_el)
+        else:
+            new_bold = current_bold or (node.name in ['strong', 'b'])
+            new_italic = current_italic or (node.name in ['em', 'i'])
+            for sub in node.children:
+                traverse_link_node(sub, new_bold, new_italic)
+                
+    traverse_link_node(anchor_node, bold, italic)
+    paragraph._p.append(hyperlink_el)
+
 def add_runs_to_paragraph(paragraph, parent_element):
     """
     Recursively processes parent_element's children (text nodes and inline formatting tags)
-    and adds them as runs to the paragraph with correct bold/italic formatting.
+    and adds them as runs to the paragraph with correct bold/italic/link formatting.
     """
     for child in parent_element.children:
         if child.name is None:  # Plain text node
             paragraph.add_run(child)
+        elif child.name == 'a':
+            url = child.get('href', '')
+            add_hyperlink_to_paragraph(paragraph, url, child)
         else:
             is_bold = child.name in ['strong', 'b']
             is_italic = child.name in ['em', 'i']
@@ -66,6 +94,9 @@ def add_runs_to_paragraph(paragraph, parent_element):
                         run.bold = True
                     if italic:
                         run.italic = True
+                elif node.name == 'a':
+                    url = node.get('href', '')
+                    add_hyperlink_to_paragraph(paragraph, url, node, bold, italic)
                 else:
                     new_bold = bold or (node.name in ['strong', 'b'])
                     new_italic = italic or (node.name in ['em', 'i'])

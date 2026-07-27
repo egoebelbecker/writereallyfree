@@ -66,3 +66,32 @@ def test_horizontal_rule(tmp_path):
     assert bottom is not None
     assert bottom.get(qn('w:val')) == 'single'
 
+def test_hyperlink_preservation():
+    from docx.oxml.ns import qn
+    md = "Please visit [Example Website](https://example.com) now."
+    html = markdown.markdown(md)
+    soup = BeautifulSoup(html, "html.parser")
+    
+    p_element = soup.find('p')
+    assert p_element is not None
+    
+    doc = Document()
+    p = doc.add_paragraph()
+    add_runs_to_paragraph(p, p_element)
+    
+    # Check that the paragraph contains the w:hyperlink node
+    hyperlink_node = p._p.find(qn('w:hyperlink'))
+    assert hyperlink_node is not None
+    
+    # Verify the relationship ID is bound
+    r_id = hyperlink_node.get(qn('r:id'))
+    assert r_id is not None
+    
+    # Verify the text inside the hyperlink
+    r_node = hyperlink_node.find(qn('w:r'))
+    assert r_node is not None
+    t_node = r_node.find(qn('w:t'))
+    assert t_node is not None
+    assert t_node.text == "Example Website"
+
+
