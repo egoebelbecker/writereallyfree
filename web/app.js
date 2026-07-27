@@ -5,7 +5,6 @@ let currentIsDrive = false; // Is the current path on a FreeWrite drive
 let currentParentPath = null; // Calculated parent path for the "Up" button
 let syncFolderName = ""; // Tracks currently active sync folder name
 let copyEmptyFolders = false; // Tracks empty directory sync setting
-let copyReadme = false; // Tracks README copy setting
 let theme = "system"; // Tracks active theme setting
 let syncFolderPrefix = ""; // Tracks sync folder prefix setting
 let convertToDocx = false; // Tracks convert to DOCX sync setting
@@ -146,7 +145,6 @@ function loadDirectory(subpath) {
                     currentParentPath = response.parent_path;
                     syncFolderName = response.sync_folder_name || "";
                     copyEmptyFolders = response.copy_empty_folders || false;
-                    copyReadme = response.copy_readme || false;
                     theme = response.theme || "system";
                     syncFolderPrefix = response.sync_folder_prefix || "";
                     convertToDocx = response.convert_to_docx || false;
@@ -447,7 +445,7 @@ function setupListeners() {
             const targetValue = isCurrentSync ? "" : contextMenuItem.rel_path;
 
             if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-                window.pywebview.api.save_preferences(targetValue, copyEmptyFolders, copyReadme, theme, syncFolderPrefix)
+                window.pywebview.api.save_preferences(targetValue, copyEmptyFolders, theme, syncFolderPrefix)
                     .then(res => {
                         if (res.success) {
                             closeContextMenu();
@@ -636,11 +634,11 @@ function setupPreferencesListeners() {
     const btnSavePreferences = document.getElementById('btn-save-preferences');
     const inputSyncFolder = document.getElementById('input-sync-folder');
     const inputCopyEmpty = document.getElementById('input-copy-empty');
-    const inputCopyReadme = document.getElementById('input-copy-readme');
     const themeSelector = document.getElementById('theme-selector');
     const themeOpts = themeSelector ? themeSelector.querySelectorAll('.theme-opt') : [];
     const inputFolderPrefix = document.getElementById('input-folder-prefix');
     const inputConvertDocx = document.getElementById('input-convert-docx');
+    const inputStripDatePrefix = document.getElementById('input-strip-date-prefix');
 
     if (!modalPreferences || !btnPreferences) return;
 
@@ -664,7 +662,6 @@ function setupPreferencesListeners() {
                         if (versionEl) {
                             versionEl.textContent = res.version || '';
                         }
-                        inputCopyReadme.checked = res.copy_readme || false;
                         if (inputConvertDocx) {
                             inputConvertDocx.checked = res.convert_to_docx || false;
                         }
@@ -679,6 +676,7 @@ function setupPreferencesListeners() {
                         });
 
                         inputFolderPrefix.value = res.sync_folder_prefix || "";
+                        inputStripDatePrefix.checked = res.strip_date_prefix || false;
                     }
                     modalPreferences.classList.remove('hidden');
                 });
@@ -694,13 +692,12 @@ function setupPreferencesListeners() {
     btnSavePreferences.addEventListener('click', () => {
         const value = inputSyncFolder.value.trim();
         const copyEmpty = inputCopyEmpty.checked;
-        const copyReadmeVal = inputCopyReadme.checked;
         const activeOpt = themeSelector ? themeSelector.querySelector('.theme-opt.active') : null;
         const themeVal = activeOpt ? activeOpt.dataset.value : "system";
         const folderPrefix = inputFolderPrefix.value;
         const convertToDocxVal = inputConvertDocx ? inputConvertDocx.checked : false;
         if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-            window.pywebview.api.save_preferences(value, copyEmpty, copyReadmeVal, themeVal, folderPrefix, convertToDocxVal)
+            window.pywebview.api.save_preferences(value, copyEmpty, themeVal, folderPrefix, convertToDocxVal, inputStripDatePrefix ? inputStripDatePrefix.checked : false)
                 .then(res => {
                     if (res.success) {
                         theme = themeVal;

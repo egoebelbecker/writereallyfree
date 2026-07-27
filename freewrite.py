@@ -1,4 +1,6 @@
 import os
+import hashlib
+import shutil
 import getpass
 import platform
 from windows import get_windows_volume_label
@@ -12,6 +14,18 @@ def map_sync_path(rel_path, prefix, is_dir=False):
         return os.path.join(*parts)
     return rel_path
 
+def get_checksum(filepath):
+    """Calculate SHA-256 checksum of a file."""
+    hasher = hashlib.sha256()
+    try:
+        with open(filepath, 'rb') as f:
+            for chunk in iter(lambda: f.read(4096), b''):
+                hasher.update(chunk)
+        return hasher.hexdigest()
+    except Exception:
+        return None
+
+
 class FreeWriteDriveManager:
     def __init__(self):
         self.allowed_labels = {'freewrite', 'traveler', 'alpha'}
@@ -21,14 +35,15 @@ class FreeWriteDriveManager:
         self.copy_empty_folders = config.get("copy_empty_folders", False)
         self.copy_readme = config.get("copy_readme", False)
         self.sync_folder_prefix = config.get("sync_folder_prefix", "")
-        self.convert_to_docx = config.get("convert_to_docx", False)
+        self.strip_date_prefix = config.get("strip_date_prefix", False)
 
-    def update_sync_settings(self, name, copy_empty_folders, copy_readme, prefix, convert_to_docx=False):
+    def update_sync_settings(self, name, copy_empty_folders, copy_readme, prefix, convert_to_docx=False, strip_date_prefix=False):
         self.sync_folder_name = name
         self.copy_empty_folders = copy_empty_folders
         self.copy_readme = copy_readme
         self.sync_folder_prefix = prefix
         self.convert_to_docx = convert_to_docx
+        self.strip_date_prefix = strip_date_prefix
 
     def get_drives(self):
         """Scans the system for mounted drives named FreeWrite, Traveler, or Alpha."""
@@ -92,8 +107,6 @@ class FreeWriteDriveManager:
         Synchronizes files from all detected FreeWrite drives to the local sync directory.
         Verifies copy success using SHA-256 checksums.
         """
-        import hashlib
-        import shutil
 
         if not self.sync_folder_name:
             return {"success": False, "error": "No sync folder is currently configured in preferences."}
@@ -113,16 +126,6 @@ class FreeWriteDriveManager:
         synced_files = []
         failed_files = []
         errors = []
-
-        def get_checksum(filepath):
-            hasher = hashlib.sha256()
-            try:
-                with open(filepath, 'rb') as f:
-                    for chunk in iter(lambda: f.read(4096), b''):
-                        hasher.update(chunk)
-                return hasher.hexdigest()
-            except Exception:
-                return None
 
         for drive in drives:
             drive_path = drive["path"]
@@ -150,7 +153,7 @@ class FreeWriteDriveManager:
                     if file.startswith('.'):
                         continue
 
-                    if not self.copy_readme and file.lower() == 'readme.txt' and root == drive_path:
+                    if file.lower() == 'readme.txt' and root == drive_path:
                         continue
 
                     src_file = os.path.join(root, file)
@@ -172,6 +175,15 @@ class FreeWriteDriveManager:
 
                         if src_hash == dest_hash:
                             synced_files.append({"file": mapped_rel_path, "status": "identical"})
+                            # Strip leading date prefix if enabled
+                            if self.strip_date_prefix:
+                                import re
+                                base = os.path.basename(dest_file)
+                                new_base = re.sub(r'^\d{4}-\d{2}-\d{2}\s+', '', base)
+                                if new_base != base:
+                                    new_path = os.path.join(os.path.dirname(dest_file), new_base)
+                                    os.rename(dest_file, new_path)
+                                    dest_file = new_path
                             if self.convert_to_docx:
                                 ext = os.path.splitext(dest_file)[1].lower()
                                 if ext in ('.txt', '.md', '.markdown'):

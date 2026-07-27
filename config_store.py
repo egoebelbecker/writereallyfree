@@ -25,10 +25,10 @@ def load_config():
     defaults = {
         "sync_folder_name": "",
         "copy_empty_folders": False,
-        "copy_readme": False,
         "theme": "system",
         "sync_folder_prefix": "",
-        "convert_to_docx": False
+        "convert_to_docx": False,
+        "strip_date_prefix": False
     }
     if os.path.exists(config_path):
         try:
