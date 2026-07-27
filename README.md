@@ -1,9 +1,19 @@
 # WriteReallyFree - FreeWrite explorer
 
+<img width="1006" height="722" alt="Screenshot_20260726_225607" src="https://github.com/user-attachments/assets/9922411f-4e65-4a92-be36-a91cb512f349" />
+
 This is a work in progress. The current version synchronizes text files from a FreeWrite device to a configured directory on a Linux or Mac PC. (Windows coming soon - I need a way to test it.)
 
 It will optionally convert the files to .docx, supporting any markdown formatting you have in there, too,
 
+You can configure a location to sync files and set custom folder names.
+<img width="1007" height="726" alt="Screenshot_20260726_230532" src="https://github.com/user-attachments/assets/2850dc7f-73f2-42b5-9865-15c1e758b231" />
+
+It will find you FreeWrite on demand if you run the app before you remember to plug it in.
+
+<img width="800" height="578" alt="wrf" src="https://github.com/user-attachments/assets/dacd2a03-d9f6-4b05-a2b1-46f4ec606de7" />
+
+(Flashing is from screen cap, not the app.)
 
 
 ## Prerequisites
