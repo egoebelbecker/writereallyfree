@@ -24,6 +24,19 @@ echo "Running PyInstaller compilation..."
 # Copy pyinstaller output to AppDir
 cp -r dist/writereallyfree "$APP_DIR/usr/bin/"
 
+# Bundle system libxcb helper libraries into AppDir so Qt platform plugin (libqxcb.so) works everywhere
+echo "Bundling XCB system libraries for Qt..."
+TARGET_LIB_DIR="$APP_DIR/usr/bin/writereallyfree/_internal"
+if [ ! -d "$TARGET_LIB_DIR" ]; then
+    TARGET_LIB_DIR="$APP_DIR/usr/bin/writereallyfree"
+fi
+
+for libdir in /usr/lib/x86_64-linux-gnu /usr/lib64 /usr/lib; do
+    if [ -d "$libdir" ]; then
+        cp -d "$libdir"/libxcb-*.so* "$TARGET_LIB_DIR/" 2>/dev/null || true
+    fi
+done
+
 # 3. Setup Desktop file & Icons
 cp "$SCRIPT_DIR/writereallyfree.desktop" "$APP_DIR/"
 cp web/icon.png "$APP_DIR/writereallyfree.png"
