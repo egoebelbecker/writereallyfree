@@ -170,7 +170,6 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="input-sync-folder">Sync Folder Name</label>
-                    <p class="form-help">Enter the subfolder name under your Home directory where files should sync (e.g., <code>Writing</code>).</p>
                     <input type="text" id="input-sync-folder" placeholder="e.g. Writing">
                 </div>
                 <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
@@ -178,12 +177,12 @@
                     <label for="input-copy-empty" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Copy Empty Folders</label>
                 </div>
                 <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
-                    <input type="checkbox" id="input-copy-readme" style="width: auto; cursor: pointer;">
-                    <label for="input-copy-readme" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Copy README.txt</label>
-                </div>
-                <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
                     <input type="checkbox" id="input-convert-docx" style="width: auto; cursor: pointer;">
                     <label for="input-convert-docx" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Convert to DOCX after sync</label>
+                </div>
+                <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
+                    <input type="checkbox" id="input-strip-date-prefix" style="width: auto; cursor: pointer;">
+                    <label for="input-strip-date-prefix" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Strip date prefix from filenames</label>
                 </div>
                 <div class="form-group">
                     <label>Theme</label>
