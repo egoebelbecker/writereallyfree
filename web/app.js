@@ -625,6 +625,17 @@ function closeContextMenu() {
     contextMenuItem = null;
 }
 
+// Global listener to open external http/https links in system default browser
+document.addEventListener('click', (e) => {
+    const anchor = e.target.closest && e.target.closest('a');
+    if (anchor && anchor.href && (anchor.href.startsWith('http://') || anchor.href.startsWith('https://'))) {
+        e.preventDefault();
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.open_external) {
+            window.pywebview.api.open_external(anchor.href);
+        }
+    }
+});
+
 // Setup preferences modal listeners
 function setupPreferencesListeners() {
     const modalPreferences = document.getElementById('modal-preferences');

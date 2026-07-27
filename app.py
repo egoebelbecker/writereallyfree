@@ -1,6 +1,7 @@
 import os
 import sys
 import webview
+import webbrowser
 import datetime
 from windows import get_windows_volume_label
 from freewrite import FreeWriteDriveManager
@@ -43,7 +44,14 @@ class HomeExplorerAPI:
             "convert_to_docx": self.convert_to_docx,
             "strip_date_prefix": getattr(self, "strip_date_prefix", False),
             "version": getattr(self, "version", "dev")
-        }
+        }    
+    def open_external(self, url):
+        """Open a URL in the system's default browser."""
+        try:
+            webbrowser.open(url)
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     def save_preferences(self, sync_folder_name, copy_empty_folders=False, theme="system", sync_folder_prefix="", convert_to_docx=False, strip_date_prefix=False):
         """Save preferences and ensure folders exist."""

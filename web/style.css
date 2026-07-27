@@ -10,26 +10,27 @@
     --bg-card: rgba(30, 41, 59, 0.4);
     --bg-hover: rgba(51, 65, 85, 0.3);
     --bg-active: rgba(99, 102, 241, 0.15);
-    
+
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    
-    --accent: #6366f1; /* Indigo */
+
+    --accent: #6366f1;
+    /* Indigo */
     --accent-glow: rgba(99, 102, 241, 0.4);
     --accent-emerald: #10b981;
     --accent-amber: #f59e0b;
     --accent-rose: #f43f5e;
-    
+
     --border: rgba(51, 65, 85, 0.5);
     --border-highlight: rgba(99, 102, 241, 0.3);
-    
+
     --glass-blur: blur(16px);
     --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     --radius-lg: 12px;
     --radius-md: 8px;
     --radius-sm: 4px;
-    
+
     --font-sans: 'Outfit', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 }
@@ -41,20 +42,20 @@
     --bg-card: rgba(255, 255, 255, 0.7);
     --bg-hover: rgba(226, 232, 240, 0.5);
     --bg-active: rgba(99, 102, 241, 0.1);
-    
+
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --text-muted: #94a3b8;
-    
+
     --accent: #4f46e5;
     --accent-glow: rgba(79, 70, 229, 0.2);
     --accent-emerald: #059669;
     --accent-amber: #d97706;
     --accent-rose: #e11d48;
-    
+
     --border: rgba(203, 213, 225, 0.8);
     --border-highlight: rgba(79, 70, 229, 0.2);
-    
+
     --shadow-premium: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
 }
 
@@ -66,20 +67,20 @@
         --bg-card: rgba(255, 255, 255, 0.7);
         --bg-hover: rgba(226, 232, 240, 0.5);
         --bg-active: rgba(99, 102, 241, 0.1);
-        
+
         --text-primary: #0f172a;
         --text-secondary: #475569;
         --text-muted: #94a3b8;
-        
+
         --accent: #4f46e5;
         --accent-glow: rgba(79, 70, 229, 0.2);
         --accent-emerald: #059669;
         --accent-amber: #d97706;
         --accent-rose: #e11d48;
-        
+
         --border: rgba(203, 213, 225, 0.8);
         --border-highlight: rgba(79, 70, 229, 0.2);
-        
+
         --shadow-premium: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
     }
 }
@@ -89,7 +90,8 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    user-select: none; /* Desktop feel */
+    user-select: none;
+    /* Desktop feel */
 }
 
 body {
@@ -315,6 +317,7 @@ body {
 .address-segments::-webkit-scrollbar {
     height: 2px;
 }
+
 .address-segments::-webkit-scrollbar-thumb {
     background: var(--border);
 }
@@ -395,13 +398,16 @@ body {
 .files-list::-webkit-scrollbar {
     width: 6px;
 }
+
 .files-list::-webkit-scrollbar-track {
     background: transparent;
 }
+
 .files-list::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 3px;
 }
+
 .files-list::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
@@ -458,7 +464,9 @@ body {
 }
 
 /* List States (Empty, Loading, Error) */
-.loading-state, .empty-state, .error-state {
+.loading-state,
+.empty-state,
+.error-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -480,8 +488,13 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* ==========================================================================
@@ -499,8 +512,13 @@ body {
 }
 
 @keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
 }
 
 .preview-pane.hidden {
@@ -553,6 +571,7 @@ body {
 .preview-body::-webkit-scrollbar {
     width: 4px;
 }
+
 .preview-body::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 2px;
@@ -603,7 +622,8 @@ body {
     font-family: var(--font-mono);
     font-size: 11px;
     word-break: break-all;
-    user-select: text; /* Allow user to copy path */
+    user-select: text;
+    /* Allow user to copy path */
 }
 
 .preview-content-section {
@@ -633,7 +653,8 @@ body {
     word-break: break-all;
     overflow-y: auto;
     max-height: 250px;
-    user-select: text; /* Allow selection for copy */
+    user-select: text;
+    /* Allow selection for copy */
 }
 
 /* Settings Button Hover */
@@ -673,9 +694,17 @@ body {
     animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+
 @keyframes modalScaleIn {
-    from { transform: scale(0.9) translateY(10px); opacity: 0; }
-    to { transform: scale(1) translateY(0); opacity: 1; }
+    from {
+        transform: scale(0.9) translateY(10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
 }
 
 .modal-header {
@@ -705,11 +734,30 @@ body {
     gap: 8px;
 }
 
+.form-horiz-group {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+
+.form-outer-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* vertically centers them */
+}
+
+
 .form-group label {
     font-size: 13px;
     font-weight: 500;
     color: var(--text-secondary);
 }
+
+
+
+
 
 .form-help {
     font-size: 12px;
@@ -735,6 +783,26 @@ body {
     box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
+/* External link styling for visibility */
+.external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.external-link img {
+    height: 18px;
+    width: auto;
+}
+.external-link:hover {
+    color: var(--accent-glow);
+}
+
+/* Modal footer styling */
 .modal-footer {
     padding: 16px 24px;
     background-color: rgba(9, 13, 22, 0.4);
@@ -802,8 +870,15 @@ body {
 }
 
 @keyframes contextMenuFadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .context-menu-item {
@@ -875,5 +950,3 @@ body {
     background-color: var(--bg-hover);
     color: var(--text-primary);
 }
-
-
