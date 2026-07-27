@@ -47,6 +47,7 @@ jobs:
           ls -l WriteReallyFree-${{ github.ref_name }}-x86_64.AppImage
 
       - name: Upload AppImage Artifact
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: WriteReallyFree-Linux-AppImage-${{ github.ref_name }}
@@ -127,6 +128,7 @@ jobs:
           ls -l dist/WriteReallyFree-${{ github.ref_name }}.dmg
 
       - name: Upload DMG Artifact
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: WriteReallyFree-macOS-DMG-${{ github.ref_name }}
