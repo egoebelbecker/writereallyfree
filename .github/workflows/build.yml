@@ -79,8 +79,17 @@ jobs:
           if-no-files-found: error
 
   build-macos:
-    name: Build macOS DMG
-    runs-on: macos-latest
+    name: Build macOS DMG (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-13
+            arch: Intel (x86_64)
+            artifact_suffix: x86_64
+          - os: macos-latest
+            arch: Apple Silicon (arm64)
+            artifact_suffix: arm64
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -144,21 +153,21 @@ jobs:
       - name: Rename DMG with tag
 
         run: |
-           echo "Renaming DMG using ref ${{ github.ref_name }}"
-           mv dist/WriteReallyFree.dmg dist/WriteReallyFree-${{ github.ref_name }}.dmg
+           echo "Renaming DMG using ref ${{ github.ref_name }} (${{ matrix.artifact_suffix }})"
+           mv dist/WriteReallyFree.dmg dist/WriteReallyFree-${{ github.ref_name }}-${{ matrix.artifact_suffix }}.dmg
 
       - name: List macOS DMG artifact file
 
         run: |
           echo "Listing DMG artifact:"
-          ls -l dist/WriteReallyFree-${{ github.ref_name }}.dmg
+          ls -l dist/WriteReallyFree-${{ github.ref_name }}-${{ matrix.artifact_suffix }}.dmg
 
       - name: Upload DMG Artifact
 
         uses: actions/upload-artifact@v4
         with:
-          name: WriteReallyFree-macOS-DMG-${{ github.ref_name }}
-          path: dist/WriteReallyFree-${{ github.ref_name }}.dmg
+          name: WriteReallyFree-macOS-DMG-${{ matrix.artifact_suffix }}-${{ github.ref_name }}
+          path: dist/WriteReallyFree-${{ github.ref_name }}-${{ matrix.artifact_suffix }}.dmg
           if-no-files-found: error
 
   release:
@@ -175,10 +184,16 @@ jobs:
           name: WriteReallyFree-Linux-AppImage-${{ github.ref_name }}
           path: ./artifacts
 
-      - name: Download macOS DMG
+      - name: Download macOS x86_64 DMG
         uses: actions/download-artifact@v4
         with:
-          name: WriteReallyFree-macOS-DMG-${{ github.ref_name }}
+          name: WriteReallyFree-macOS-DMG-x86_64-${{ github.ref_name }}
+          path: ./artifacts
+
+      - name: Download macOS arm64 DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: WriteReallyFree-macOS-DMG-arm64-${{ github.ref_name }}
           path: ./artifacts
 
       - name: Publish Release
@@ -186,4 +201,5 @@ jobs:
         with:
           files: |
             ./artifacts/WriteReallyFree-${{ github.ref_name }}-x86_64.AppImage
-            ./artifacts/WriteReallyFree-${{ github.ref_name }}.dmg
+            ./artifacts/WriteReallyFree-${{ github.ref_name }}-x86_64.dmg
+            ./artifacts/WriteReallyFree-${{ github.ref_name }}-arm64.dmg
