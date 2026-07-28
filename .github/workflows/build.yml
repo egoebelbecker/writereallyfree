@@ -86,10 +86,12 @@ jobs:
         include:
           - python_arch: x64
             target_arch: x86_64
+            cmd_prefix: "arch -x86_64"
             arch: Intel (x86_64)
             artifact_suffix: x86_64
           - python_arch: arm64
             target_arch: arm64
+            cmd_prefix: ""
             arch: Apple Silicon (arm64)
             artifact_suffix: arm64
     steps:
@@ -105,14 +107,14 @@ jobs:
 
       - name: Install macOS Dependencies
         run: |
-          python -m venv .venv
-          .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install -r requirements.txt
-          .venv/bin/pip install pyobjc pyinstaller
+          ${{ matrix.cmd_prefix }} python -m venv .venv
+          ${{ matrix.cmd_prefix }} .venv/bin/pip install --upgrade pip
+          ${{ matrix.cmd_prefix }} .venv/bin/pip install -r requirements.txt
+          ${{ matrix.cmd_prefix }} .venv/bin/pip install pyobjc pyinstaller
 
       - name: Run Tests
         run: |
-          .venv/bin/python -m pytest -q
+          ${{ matrix.cmd_prefix }} .venv/bin/python -m pytest -q
 
       - name: Generate macOS ICNS Icon
         run: |
@@ -132,7 +134,7 @@ jobs:
 
       - name: Build via PyInstaller
         run: |
-          .venv/bin/pyinstaller --clean \
+          ${{ matrix.cmd_prefix }} .venv/bin/pyinstaller --clean \
             --name WriteReallyFree \
             --add-data "web:web" \
             --windowed \
