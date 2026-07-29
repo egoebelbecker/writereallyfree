@@ -1,5 +1,20 @@
 import os
 import sys
+
+# Ensure pythonnet can find the Python runtime DLL when packaged with PyInstaller on Windows
+if sys.platform == "win32" and getattr(sys, "frozen", False):
+    if "PYTHONNET_PYDLL" not in os.environ:
+        base_dir = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(sys.executable)))
+        search_dirs = [base_dir, os.path.join(base_dir, "_internal")]
+        for sdir in search_dirs:
+            if os.path.exists(sdir):
+                for f in os.listdir(sdir):
+                    if f.startswith("python3") and f.endswith(".dll") and not f.startswith("python3-"):
+                        os.environ["PYTHONNET_PYDLL"] = os.path.join(sdir, f)
+                        break
+            if "PYTHONNET_PYDLL" in os.environ:
+                break
+
 import webview
 import webbrowser
 import datetime
