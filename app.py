@@ -343,7 +343,14 @@ def main():
         background_color='#0f172a' # Dark slate background to match dark theme
     )
     
-    webview.start()
+    if sys.platform == "win32":
+        try:
+            webview.start(gui="qt")
+        except Exception:
+            webview.start()
+    else:
+        webview.start()
 
 if __name__ == '__main__':
     main()
+

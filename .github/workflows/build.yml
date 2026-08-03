@@ -204,7 +204,7 @@ jobs:
           .venv\Scripts\python -c "from PIL import Image; img = Image.open('web/icon.png'); img.save('web/icon.ico', format='ICO', sizes=[(256, 256)])"
 
       - name: Build via PyInstaller
-        run: .venv\Scripts\pyinstaller --clean --name WriteReallyFree --add-data "web;web" --windowed --icon "web/icon.ico" --collect-all pythonnet --collect-all pywebview --collect-all clr_loader --noconfirm app.py
+        run: .venv\Scripts\pyinstaller --clean --name WriteReallyFree --add-data "web;web" --windowed --icon "web/icon.ico" --collect-all pywebview --collect-all PyQt5 --noconfirm app.py
 
       - name: Create Zip Archive
         shell: pwsh
