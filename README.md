@@ -2,7 +2,7 @@
 
 <img width="1006" height="722" alt="Screenshot_20260726_225607" src="https://github.com/user-attachments/assets/9922411f-4e65-4a92-be36-a91cb512f349" />
 
-This is a work in progress. The current version synchronizes text files from a FreeWrite device to a configured directory on a Linux or Mac PC. (Windows coming soon - I need a way to test it.)
+This is a work in progress. The current version synchronizes text files from a FreeWrite device to a configured directory on a Linux, Mac or PC. 
 
 It will optionally convert the files to .docx, supporting any markdown formatting you have in there, too,
 
