@@ -4,20 +4,41 @@
 
 This is a work in progress. The current version synchronizes text files from a FreeWrite device to a configured directory on a Linux, Mac or PC. 
 
+You can configure a location to sync files and set custom folder names.
+<img width="451" height="612" alt="Screenshot_20260815_175235" src="https://github.com/user-attachments/assets/3da005bf-a5b5-4d65-bcbc-17c737a04299" />
+
 It will optionally convert the files to .docx, supporting any markdown formatting you have in there, too.
 
 You can configure a few options for the docx conversion:
-
 <img width="447" height="360" alt="Screenshot_20260815_175116" src="https://github.com/user-attachments/assets/38924592-80c3-44ee-a0b4-c9f9df2c170e" />
 
-You can configure a location to sync files and set custom folder names.
-<img width="1007" height="726" alt="Screenshot_20260726_230532" src="https://github.com/user-attachments/assets/2850dc7f-73f2-42b5-9865-15c1e758b231" />
-
-It will find you FreeWrite on demand if you run the app before you remember to plug it in.
+It will find your FreeWrite on demand if you run the app before you remember to plug it in.
 
 [Screencast_20260815_174659.webm](https://github.com/user-attachments/assets/37bd7b66-1860-405a-b98d-ee1dff53492d)
 
+## Releases
+The latest releases are [here](https://github.com/egoebelbecker/writereallyfree/releases). 
+
+### Running the releases.
+
+### Linux
+
+Download the AppImage from the [releases](https://github.com/egoebelbecker/writereallyfree/releases/) page. Unzip it. Run the file. If you like it, use your favorite AppImage manager to add it to your desktop environment.
+
+(I like [GearLever](https://github.com/mijorus/gearlever))
+
+### Mac
+
+Download the DMG from [releases](https://github.com/egoebelbecker/writereallyfree/releases/). Uncompress it. Open the DMG and run it from there. If you like it, drag it over to Applications.
+
+### Windows
+Unzip the package, run from the unzipped folder. Any help coming up with an easier to manage package is welcome.
+
+
+
 ## Prerequisites
+
+If you want to check out the repo and run from source, you'll need a couple of packages for Linux.
 
 ### 1. System Dependencies (Linux)
 
@@ -43,6 +64,8 @@ sudo dnf install python3-gobject webkit2gtk4.0
 ```bash
 sudo pacman -S python-gobject webkit2gtk
 ```
+
+Or, download an appimage
 
 ### 2. System Dependencies (macOS)
 
@@ -81,18 +104,6 @@ source .venv/bin/activate
 # 3. Install Python dependencies
 pip3 install -r requirements.txt
 ```
-
-## Installing the Packages
-
-### Linux
-
-Download the AppImage from the [releases](https://github.com/egoebelbecker/writereallyfree/releases/) page. Unzip it. Run the file. If you like it, use your favorite AppImage manager to add it to your desktop environment.
-
-(I like [GearLever](https://github.com/mijorus/gearlever))
-
-###
-
-Download the DMG from [releases](https://github.com/egoebelbecker/writereallyfree/releases/). Uncompress it. Open the DMG and run it from there. If you like it, drag it over to Applications.
 
 
 
