@@ -4,7 +4,11 @@
 
 This is a work in progress. The current version synchronizes text files from a FreeWrite device to a configured directory on a Linux, Mac or PC. 
 
-It will optionally convert the files to .docx, supporting any markdown formatting you have in there, too,
+It will optionally convert the files to .docx, supporting any markdown formatting you have in there, too.
+
+You can configure a few options for the docx conversion:
+
+<img width="447" height="360" alt="Screenshot_20260815_175116" src="https://github.com/user-attachments/assets/38924592-80c3-44ee-a0b4-c9f9df2c170e" />
 
 You can configure a location to sync files and set custom folder names.
 <img width="1007" height="726" alt="Screenshot_20260726_230532" src="https://github.com/user-attachments/assets/2850dc7f-73f2-42b5-9865-15c1e758b231" />
@@ -12,10 +16,6 @@ You can configure a location to sync files and set custom folder names.
 It will find you FreeWrite on demand if you run the app before you remember to plug it in.
 
 [Screencast_20260815_174659.webm](https://github.com/user-attachments/assets/37bd7b66-1860-405a-b98d-ee1dff53492d)
-
-
-(Flashing is from screen cap, not the app.)
-
 
 ## Prerequisites
 
