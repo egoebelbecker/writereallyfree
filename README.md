@@ -11,7 +11,8 @@ You can configure a location to sync files and set custom folder names.
 
 It will find you FreeWrite on demand if you run the app before you remember to plug it in.
 
-<img width="800" height="578" alt="wrf" src="https://github.com/user-attachments/assets/dacd2a03-d9f6-4b05-a2b1-46f4ec606de7" />
+[Screencast_20260815_174659.webm](https://github.com/user-attachments/assets/37bd7b66-1860-405a-b98d-ee1dff53492d)
+
 
 (Flashing is from screen cap, not the app.)
 
