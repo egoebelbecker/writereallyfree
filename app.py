@@ -35,6 +35,10 @@ class HomeExplorerAPI:
         self.sync_folder_prefix = config.get("sync_folder_prefix", "")
         self.convert_to_docx = config.get("convert_to_docx", False)
         self.strip_date_prefix = config.get("strip_date_prefix", False)
+        self.docx_doublespace = config.get("docx_doublespace", False)
+        self.docx_indent_first_line = config.get("docx_indent_first_line", False)
+        self.docx_space_before = config.get("docx_space_before", False)
+        self.docx_space_after = config.get("docx_space_after", False)
 
     def get_home_path(self):
         """Returns the absolute path of the home directory."""
@@ -58,6 +62,10 @@ class HomeExplorerAPI:
             "sync_folder_prefix": self.sync_folder_prefix,
             "convert_to_docx": self.convert_to_docx,
             "strip_date_prefix": getattr(self, "strip_date_prefix", False),
+            "docx_doublespace": getattr(self, "docx_doublespace", False),
+            "docx_indent_first_line": getattr(self, "docx_indent_first_line", False),
+            "docx_space_before": getattr(self, "docx_space_before", False),
+            "docx_space_after": getattr(self, "docx_space_after", False),
             "version": getattr(self, "version", "dev")
         }    
     def open_external(self, url):
@@ -87,7 +95,7 @@ class HomeExplorerAPI:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def save_preferences(self, sync_folder_name, copy_empty_folders=False, theme="system", sync_folder_prefix="", convert_to_docx=False, strip_date_prefix=False):
+    def save_preferences(self, sync_folder_name, copy_empty_folders=False, theme="system", sync_folder_prefix="", convert_to_docx=False, strip_date_prefix=False, docx_doublespace=False, docx_indent_first_line=False, docx_space_before=False, docx_space_after=False):
         """Save preferences and ensure folders exist."""
         try:
             sync_folder_name = sync_folder_name.strip().strip("/").strip("\\")
@@ -105,7 +113,11 @@ class HomeExplorerAPI:
                 "theme": theme,
                 "sync_folder_prefix": sync_folder_prefix,
                 "convert_to_docx": convert_to_docx,
-                "strip_date_prefix": strip_date_prefix
+                "strip_date_prefix": strip_date_prefix,
+                "docx_doublespace": docx_doublespace,
+                "docx_indent_first_line": docx_indent_first_line,
+                "docx_space_before": docx_space_before,
+                "docx_space_after": docx_space_after
             })
             
             self.sync_folder_name = sync_folder_name
@@ -114,9 +126,22 @@ class HomeExplorerAPI:
             self.sync_folder_prefix = sync_folder_prefix
             self.convert_to_docx = convert_to_docx
             self.strip_date_prefix = strip_date_prefix
+            self.docx_doublespace = docx_doublespace
+            self.docx_indent_first_line = docx_indent_first_line
+            self.docx_space_before = docx_space_before
+            self.docx_space_after = docx_space_after
             
             self.freewrite_manager.update_sync_settings(
-                sync_folder_name, copy_empty_folders, sync_folder_prefix, convert_to_docx, strip_date_prefix
+                name=sync_folder_name,
+                copy_empty_folders=copy_empty_folders,
+                copy_readme=False,
+                prefix=sync_folder_prefix,
+                convert_to_docx=convert_to_docx,
+                strip_date_prefix=strip_date_prefix,
+                docx_doublespace=docx_doublespace,
+                docx_indent_first_line=docx_indent_first_line,
+                docx_space_before=docx_space_before,
+                docx_space_after=docx_space_after
             )
             return {"success": True}
         except Exception as e:
@@ -129,11 +154,16 @@ class HomeExplorerAPI:
             from config_store import load_config
             config = load_config()
             self.freewrite_manager.update_sync_settings(
-                config.get("sync_folder_name", ""),
-                config.get("copy_empty_folders", False),
-                config.get("sync_folder_prefix", ""),
-                config.get("convert_to_docx", False),
-                config.get("strip_date_prefix", False)
+                name=config.get("sync_folder_name", ""),
+                copy_empty_folders=config.get("copy_empty_folders", False),
+                copy_readme=False,
+                prefix=config.get("sync_folder_prefix", ""),
+                convert_to_docx=config.get("convert_to_docx", False),
+                strip_date_prefix=config.get("strip_date_prefix", False),
+                docx_doublespace=config.get("docx_doublespace", False),
+                docx_indent_first_line=config.get("docx_indent_first_line", False),
+                docx_space_before=config.get("docx_space_before", False),
+                docx_space_after=config.get("docx_space_after", False)
             )
             
             return self.freewrite_manager.sync_drives()
@@ -271,6 +301,10 @@ class HomeExplorerAPI:
                 "theme": self.theme,
                 "sync_folder_prefix": self.sync_folder_prefix,
                 "convert_to_docx": self.convert_to_docx,
+                "docx_doublespace": getattr(self, "docx_doublespace", False),
+                "docx_indent_first_line": getattr(self, "docx_indent_first_line", False),
+                "docx_space_before": getattr(self, "docx_space_before", False),
+                "docx_space_after": getattr(self, "docx_space_after", False),
                 "items": items
             }
         except Exception as e:

@@ -35,3 +35,7 @@ def test_save_and_load_config(monkeypatch, tmp_path):
     monkeypatch.setattr(config_store, 'get_config_dir', lambda: str(tmp_path))
     loaded2 = config_store.load_config()
     assert "theme" in loaded2
+    assert loaded2["docx_doublespace"] is False
+    assert loaded2["docx_indent_first_line"] is False
+    assert loaded2["docx_space_before"] is False
+    assert loaded2["docx_space_after"] is False

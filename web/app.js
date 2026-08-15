@@ -8,6 +8,10 @@ let copyEmptyFolders = false; // Tracks empty directory sync setting
 let theme = "system"; // Tracks active theme setting
 let syncFolderPrefix = ""; // Tracks sync folder prefix setting
 let convertToDocx = false; // Tracks convert to DOCX sync setting
+let docxDoublespace = false; // Tracks double space DOCX setting
+let docxIndentFirstLine = false; // Tracks indent first line setting
+let docxSpaceBefore = false; // Tracks space before paragraph setting
+let docxSpaceAfter = false; // Tracks space after paragraph setting
 let allItems = []; // All items in the current directory
 
 function applyTheme(themeName) {
@@ -148,6 +152,10 @@ function loadDirectory(subpath) {
                     theme = response.theme || "system";
                     syncFolderPrefix = response.sync_folder_prefix || "";
                     convertToDocx = response.convert_to_docx || false;
+                    docxDoublespace = response.docx_doublespace || false;
+                    docxIndentFirstLine = response.docx_indent_first_line || false;
+                    docxSpaceBefore = response.docx_space_before || false;
+                    docxSpaceAfter = response.docx_space_after || false;
                     applyTheme(theme);
 
                     // Update Sync Folder shortcut path and visibility
@@ -445,7 +453,7 @@ function setupListeners() {
             const targetValue = isCurrentSync ? "" : contextMenuItem.rel_path;
 
             if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-                window.pywebview.api.save_preferences(targetValue, copyEmptyFolders, theme, syncFolderPrefix)
+                window.pywebview.api.save_preferences(targetValue, copyEmptyFolders, theme, syncFolderPrefix, convertToDocx, false, docxDoublespace, docxIndentFirstLine, docxSpaceBefore, docxSpaceAfter)
                     .then(res => {
                         if (res.success) {
                             closeContextMenu();
@@ -649,7 +657,31 @@ function setupPreferencesListeners() {
     const themeOpts = themeSelector ? themeSelector.querySelectorAll('.theme-opt') : [];
     const inputFolderPrefix = document.getElementById('input-folder-prefix');
     const inputConvertDocx = document.getElementById('input-convert-docx');
+    const inputDocxDoublespace = document.getElementById('input-docx-doublespace');
+    const inputDocxIndentFirstLine = document.getElementById('input-docx-indent-first-line');
+    const inputDocxSpaceBefore = document.getElementById('input-docx-space-before');
+    const inputDocxSpaceAfter = document.getElementById('input-docx-space-after');
     const inputStripDatePrefix = document.getElementById('input-strip-date-prefix');
+
+    const tabBtnGeneral = document.getElementById('tab-btn-general');
+    const tabBtnWord = document.getElementById('tab-btn-word');
+    const tabPanelGeneral = document.getElementById('tab-panel-general');
+    const tabPanelWord = document.getElementById('tab-panel-word');
+
+    if (tabBtnGeneral && tabBtnWord && tabPanelGeneral && tabPanelWord) {
+        tabBtnGeneral.addEventListener('click', () => {
+            tabBtnGeneral.classList.add('active');
+            tabBtnWord.classList.remove('active');
+            tabPanelGeneral.classList.remove('hidden');
+            tabPanelWord.classList.add('hidden');
+        });
+        tabBtnWord.addEventListener('click', () => {
+            tabBtnWord.classList.add('active');
+            tabBtnGeneral.classList.remove('active');
+            tabPanelWord.classList.remove('hidden');
+            tabPanelGeneral.classList.add('hidden');
+        });
+    }
 
     if (!modalPreferences || !btnPreferences) return;
 
@@ -675,6 +707,18 @@ function setupPreferencesListeners() {
                         }
                         if (inputConvertDocx) {
                             inputConvertDocx.checked = res.convert_to_docx || false;
+                        }
+                        if (inputDocxDoublespace) {
+                            inputDocxDoublespace.checked = res.docx_doublespace || false;
+                        }
+                        if (inputDocxIndentFirstLine) {
+                            inputDocxIndentFirstLine.checked = res.docx_indent_first_line || false;
+                        }
+                        if (inputDocxSpaceBefore) {
+                            inputDocxSpaceBefore.checked = res.docx_space_before || false;
+                        }
+                        if (inputDocxSpaceAfter) {
+                            inputDocxSpaceAfter.checked = res.docx_space_after || false;
                         }
 
                         const activeTheme = res.theme || "system";
@@ -707,12 +751,32 @@ function setupPreferencesListeners() {
         const themeVal = activeOpt ? activeOpt.dataset.value : "system";
         const folderPrefix = inputFolderPrefix.value;
         const convertToDocxVal = inputConvertDocx ? inputConvertDocx.checked : false;
+        const docxDoublespaceVal = inputDocxDoublespace ? inputDocxDoublespace.checked : false;
+        const docxIndentFirstLineVal = inputDocxIndentFirstLine ? inputDocxIndentFirstLine.checked : false;
+        const docxSpaceBeforeVal = inputDocxSpaceBefore ? inputDocxSpaceBefore.checked : false;
+        const docxSpaceAfterVal = inputDocxSpaceAfter ? inputDocxSpaceAfter.checked : false;
+
         if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
-            window.pywebview.api.save_preferences(value, copyEmpty, themeVal, folderPrefix, convertToDocxVal, inputStripDatePrefix ? inputStripDatePrefix.checked : false)
+            window.pywebview.api.save_preferences(
+                value,
+                copyEmpty,
+                themeVal,
+                folderPrefix,
+                convertToDocxVal,
+                inputStripDatePrefix ? inputStripDatePrefix.checked : false,
+                docxDoublespaceVal,
+                docxIndentFirstLineVal,
+                docxSpaceBeforeVal,
+                docxSpaceAfterVal
+            )
                 .then(res => {
                     if (res.success) {
                         theme = themeVal;
                         convertToDocx = convertToDocxVal;
+                        docxDoublespace = docxDoublespaceVal;
+                        docxIndentFirstLine = docxIndentFirstLineVal;
+                        docxSpaceBefore = docxSpaceBeforeVal;
+                        docxSpaceAfter = docxSpaceAfterVal;
                         applyTheme(theme);
                         closeModal();
                         navigateToPath(value); // Open/display the sync folder in the main window

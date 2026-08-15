@@ -36,14 +36,23 @@ class FreeWriteDriveManager:
         self.copy_readme = config.get("copy_readme", False)
         self.sync_folder_prefix = config.get("sync_folder_prefix", "")
         self.strip_date_prefix = config.get("strip_date_prefix", False)
+        self.convert_to_docx = config.get("convert_to_docx", False)
+        self.docx_doublespace = config.get("docx_doublespace", False)
+        self.docx_indent_first_line = config.get("docx_indent_first_line", False)
+        self.docx_space_before = config.get("docx_space_before", False)
+        self.docx_space_after = config.get("docx_space_after", False)
 
-    def update_sync_settings(self, name, copy_empty_folders, copy_readme, prefix, convert_to_docx=False, strip_date_prefix=False):
+    def update_sync_settings(self, name, copy_empty_folders, copy_readme=False, prefix="", convert_to_docx=False, strip_date_prefix=False, docx_doublespace=False, docx_indent_first_line=False, docx_space_before=False, docx_space_after=False):
         self.sync_folder_name = name
         self.copy_empty_folders = copy_empty_folders
         self.copy_readme = copy_readme
         self.sync_folder_prefix = prefix
         self.convert_to_docx = convert_to_docx
         self.strip_date_prefix = strip_date_prefix
+        self.docx_doublespace = docx_doublespace
+        self.docx_indent_first_line = docx_indent_first_line
+        self.docx_space_before = docx_space_before
+        self.docx_space_after = docx_space_after
 
     def get_drives(self):
         """Scans the system for mounted drives named FreeWrite, Traveler, or Alpha."""
@@ -159,8 +168,31 @@ class FreeWriteDriveManager:
                     src_file = os.path.join(root, file)
                     rel_path = os.path.relpath(src_file, drive_path)
                     mapped_rel_path = map_sync_path(rel_path, self.sync_folder_prefix, is_dir=False)
+
+                    # Strip leading date prefix if enabled
+                    if self.strip_date_prefix:
+                        import re
+                        mapped_dir = os.path.dirname(mapped_rel_path)
+                        mapped_base = os.path.basename(mapped_rel_path)
+                        stripped_base = re.sub(r'^\d{4}[-_.]?\d{2}[-_.]?\d{2}[\s_-]*', '', mapped_base)
+                        if stripped_base:
+                            unstripped_rel_path = mapped_rel_path
+                            mapped_rel_path = os.path.join(mapped_dir, stripped_base) if mapped_dir else stripped_base
+
+                            # Clean up previously synced un-stripped file if it exists
+                            old_dest_file = os.path.join(dest_base, unstripped_rel_path)
+                            if os.path.exists(old_dest_file) and old_dest_file != os.path.join(dest_base, mapped_rel_path):
+                                try:
+                                    os.remove(old_dest_file)
+                                    old_docx = os.path.splitext(old_dest_file)[0] + '.docx'
+                                    if os.path.exists(old_docx):
+                                        os.remove(old_docx)
+                                except Exception:
+                                    pass
+
                     dest_file = os.path.join(dest_base, mapped_rel_path)
                     dest_dir = os.path.dirname(dest_file)
+                    dest_filename = os.path.basename(dest_file)
 
                     try:
                         os.makedirs(dest_dir, exist_ok=True)
@@ -175,22 +207,20 @@ class FreeWriteDriveManager:
 
                         if src_hash == dest_hash:
                             synced_files.append({"file": mapped_rel_path, "status": "identical"})
-                            # Strip leading date prefix if enabled
-                            if self.strip_date_prefix:
-                                import re
-                                base = os.path.basename(dest_file)
-                                new_base = re.sub(r'^\d{4}-\d{2}-\d{2}\s+', '', base)
-                                if new_base != base:
-                                    new_path = os.path.join(os.path.dirname(dest_file), new_base)
-                                    os.rename(dest_file, new_path)
-                                    dest_file = new_path
                             if self.convert_to_docx:
                                 ext = os.path.splitext(dest_file)[1].lower()
                                 if ext in ('.txt', '.md', '.markdown'):
                                     docx_file = os.path.splitext(dest_file)[0] + '.docx'
                                     if not os.path.exists(docx_file):
                                         from convert_doc import create_word_document
-                                        create_word_document(dest_dir, file)
+                                        create_word_document(
+                                            dest_dir,
+                                            dest_filename,
+                                            doublespace=getattr(self, "docx_doublespace", False),
+                                            indent_first_line=getattr(self, "docx_indent_first_line", False),
+                                            space_before=getattr(self, "docx_space_before", False),
+                                            space_after=getattr(self, "docx_space_after", False)
+                                        )
                             continue
 
                         # Perform the copy
@@ -204,7 +234,14 @@ class FreeWriteDriveManager:
                                 ext = os.path.splitext(dest_file)[1].lower()
                                 if ext in ('.txt', '.md', '.markdown'):
                                     from convert_doc import create_word_document
-                                    create_word_document(dest_dir, file)
+                                    create_word_document(
+                                        dest_dir,
+                                        dest_filename,
+                                        doublespace=getattr(self, "docx_doublespace", False),
+                                        indent_first_line=getattr(self, "docx_indent_first_line", False),
+                                        space_before=getattr(self, "docx_space_before", False),
+                                        space_after=getattr(self, "docx_space_after", False)
+                                    )
                         else:
                             failed_files.append({"file": mapped_rel_path, "error": "Checksum verification failed after copy."})
 

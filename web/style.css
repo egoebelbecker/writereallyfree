@@ -708,11 +708,41 @@ body {
 }
 
 .modal-header {
-    padding: 10px 12px;
+    padding: 14px 20px;
     border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.modal-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 10px 24px 0 24px;
+    border-bottom: 1px solid var(--border);
+    background-color: rgba(15, 21, 36, 0.4);
+}
+
+.modal-tab-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.modal-tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
 }
 
 .modal-title {

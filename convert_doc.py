@@ -21,7 +21,7 @@ import docx
 from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import RGBColor
+from docx.shared import RGBColor, Inches, Pt
 
 
 def change_extension_to_docx(filename):
@@ -119,7 +119,7 @@ def add_horizontal_rule(paragraph):
     pBdr.append(bottom)
     pPr.append(pBdr)
 
-def create_word_document(folder, file_name):
+def create_word_document(folder, file_name, doublespace=False, indent_first_line=False, space_before=False, space_after=False):
     input_path = os.path.join(folder, file_name)
     output_name = change_extension_to_docx(file_name)
     output_path = os.path.join(folder, output_name)
@@ -129,30 +129,60 @@ def create_word_document(folder, file_name):
             md = f.read()
 
             doc = Document()
+            try:
+                style_normal = doc.styles['Normal']
+                if doublespace:
+                    style_normal.paragraph_format.line_spacing = 2.0
+                if indent_first_line:
+                    style_normal.paragraph_format.first_line_indent = Inches(0.5)
+                if space_before:
+                    style_normal.paragraph_format.space_before = Pt(12)
+                if space_after:
+                    style_normal.paragraph_format.space_after = Pt(12)
+            except Exception:
+                pass
 
             html = markdown.markdown(md)
             soup = BeautifulSoup(html, "html.parser")
 
+            def format_p(p, is_body=False):
+                if p is None:
+                    return
+                if doublespace:
+                    p.paragraph_format.line_spacing = 2.0
+                if indent_first_line and is_body:
+                    p.paragraph_format.first_line_indent = Inches(0.5)
+                if space_before:
+                    p.paragraph_format.space_before = Pt(12)
+                if space_after:
+                    p.paragraph_format.space_after = Pt(12)
+
             for element in soup.contents:
+                p = None
                 if element.name and len(element.name) == 2 and element.name[0] == 'h' and element.name[1].isdigit():
                     level = int(element.name[1])
                     p = doc.add_heading('', level=level)
                     add_runs_to_paragraph(p, element)
+                    format_p(p, is_body=False)
                 elif element.name == 'p':
                     p = doc.add_paragraph()
                     add_runs_to_paragraph(p, element)
+                    format_p(p, is_body=True)
                 elif element.name in ['ul', 'ol']:
                     style = 'List Bullet' if element.name == 'ul' else 'List Number'
                     for li in element.find_all('li'):
                         p = doc.add_paragraph(style=style)
                         add_runs_to_paragraph(p, li)
+                        format_p(p, is_body=False)
                 elif element.name == 'blockquote':
                     p = doc.add_paragraph(style='Intense Quote')
                     add_runs_to_paragraph(p, element)
+                    format_p(p, is_body=False)
                 elif element.name == 'hr':
                     p = doc.add_paragraph()
                     add_horizontal_rule(p)
-        
+                    format_p(p, is_body=False)
+
             doc.save(output_path)
 
     else:

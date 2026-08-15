@@ -28,7 +28,11 @@ def load_config():
         "theme": "system",
         "sync_folder_prefix": "",
         "convert_to_docx": False,
-        "strip_date_prefix": False
+        "strip_date_prefix": False,
+        "docx_doublespace": False,
+        "docx_indent_first_line": False,
+        "docx_space_before": False,
+        "docx_space_after": False
     }
     if os.path.exists(config_path):
         try:

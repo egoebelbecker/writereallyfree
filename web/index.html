@@ -167,45 +167,72 @@
                 <h3 class="modal-title">Preferences</h3>
                 <button class="close-btn" id="btn-close-preferences">×</button>
             </div>
+            <div class="modal-tabs">
+                <button type="button" class="modal-tab-btn active" id="tab-btn-general" data-tab="general">General</button>
+                <button type="button" class="modal-tab-btn" id="tab-btn-word" data-tab="word">Word Formatting</button>
+            </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="input-sync-folder">Sync Folder Name</label>
-                    <input type="text" id="input-sync-folder" placeholder="e.g. Writing">
-                </div>
-                <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
-                    <input type="checkbox" id="input-copy-empty" style="width: auto; cursor: pointer;">
-                    <label for="input-copy-empty" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Copy Empty Folders</label>
-                </div>
-                <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
-                    <input type="checkbox" id="input-convert-docx" style="width: auto; cursor: pointer;">
-                    <label for="input-convert-docx" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Convert to DOCX after sync</label>
-                </div>
-                <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 8px 0;">
-                    <input type="checkbox" id="input-strip-date-prefix" style="width: auto; cursor: pointer;">
-                    <label for="input-strip-date-prefix" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Strip date prefix from filenames</label>
-                </div>
-                <div class="form-group">
-                    <label>Theme</label>
-                    <div class="theme-selector-segmented" id="theme-selector">
-                        <button type="button" class="theme-opt" data-value="system">System</button>
-                        <button type="button" class="theme-opt" data-value="dark">Dark</button>
-                        <button type="button" class="theme-opt" data-value="light">Light</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="input-folder-prefix">Sync Folder Prefix (Leave blank if not wanted.)</label>
-                    <input type="text" id="input-folder-prefix" placeholder="e.g. FreeWrite Folder ">
-                </div>
-                <!-- Version display (read‑only) -->
-                <div class="form-outer-group">
+                <!-- General Tab Panel -->
+                <div class="tab-panel" id="tab-panel-general" style="display: flex; flex-direction: column; gap: 16px;">
                     <div class="form-group">
-                        <span id="version-display" class="meta-label"></span>
+                        <label for="input-sync-folder">Sync Folder Name</label>
+                        <input type="text" id="input-sync-folder" placeholder="e.g. Writing">
+                    </div>
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 4px 0;">
+                        <input type="checkbox" id="input-copy-empty" style="width: auto; cursor: pointer;">
+                        <label for="input-copy-empty" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Copy Empty Folders</label>
+                    </div>
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 4px 0;">
+                        <input type="checkbox" id="input-convert-docx" style="width: auto; cursor: pointer;">
+                        <label for="input-convert-docx" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Convert to DOCX after sync</label>
+                    </div>
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 4px 0;">
+                        <input type="checkbox" id="input-strip-date-prefix" style="width: auto; cursor: pointer;">
+                        <label for="input-strip-date-prefix" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Strip date prefix from filenames</label>
                     </div>
                     <div class="form-group">
-                        <a href="https://github.com/egoebelbecker/writereallyfree" class="external-link" target="_blank" rel="noopener"><img src="./github.png">GitHub</a>
+                        <label>Theme</label>
+                        <div class="theme-selector-segmented" id="theme-selector">
+                            <button type="button" class="theme-opt" data-value="system">System</button>
+                            <button type="button" class="theme-opt" data-value="dark">Dark</button>
+                            <button type="button" class="theme-opt" data-value="light">Light</button>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <a href="https://ko-fi.com/egoebelbecker" class="external-link" target="_blank" rel="noopener"><img src="./kofi_icon.png">Leave a tip?</a>
+                        <label for="input-folder-prefix">Sync Folder Prefix (Leave blank if not wanted.)</label>
+                        <input type="text" id="input-folder-prefix" placeholder="e.g. FreeWrite Folder ">
+                    </div>
+                    <!-- Version display (read‑only) -->
+                    <div class="form-outer-group">
+                        <div class="form-group">
+                            <span id="version-display" class="meta-label"></span>
+                        </div>
+                        <div class="form-group">
+                            <a href="https://github.com/egoebelbecker/writereallyfree" class="external-link" target="_blank" rel="noopener"><img src="./github.png">GitHub</a>
+                        </div>
+                        <div class="form-group">
+                            <a href="https://ko-fi.com/egoebelbecker" class="external-link" target="_blank" rel="noopener"><img src="./kofi_icon.png">Leave a tip?</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Word Formatting Tab Panel -->
+                <div class="tab-panel hidden" id="tab-panel-word" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 4px 0;">
+                        <input type="checkbox" id="input-docx-doublespace" style="width: auto; cursor: pointer;">
+                        <label for="input-docx-doublespace" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Double space DOCX files</label>
+                    </div>
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 4px 0;">
+                        <input type="checkbox" id="input-docx-indent-first-line" style="width: auto; cursor: pointer;">
+                        <label for="input-docx-indent-first-line" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Indent first line of paragraphs (0.5 in)</label>
+                    </div>
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 4px 0;">
+                        <input type="checkbox" id="input-docx-space-before" style="width: auto; cursor: pointer;">
+                        <label for="input-docx-space-before" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Add space before paragraphs (12 pt)</label>
+                    </div>
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 4px 0;">
+                        <input type="checkbox" id="input-docx-space-after" style="width: auto; cursor: pointer;">
+                        <label for="input-docx-space-after" style="cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-secondary);">Add space after paragraphs (12 pt)</label>
                     </div>
                 </div>
             </div>

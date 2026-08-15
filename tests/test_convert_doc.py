@@ -95,3 +95,46 @@ def test_hyperlink_preservation():
     assert t_node.text == "Example Website"
 
 
+def test_create_word_document_doublespace(tmp_path):
+    md_content = "# Title\n\nParagraph 1\n\nParagraph 2"
+    temp_md = tmp_path / "doublespace_test.md"
+    temp_md.write_text(md_content, encoding='utf-8')
+
+    create_word_document(str(tmp_path), "doublespace_test.md", doublespace=True)
+
+    output_docx = tmp_path / "doublespace_test.docx"
+    assert output_docx.exists()
+
+    doc = Document(str(output_docx))
+    assert len(doc.paragraphs) == 3
+    for p in doc.paragraphs:
+        assert p.paragraph_format.line_spacing == 2.0
+
+
+def test_create_word_document_paragraph_formatting(tmp_path):
+    md_content = "# Title\n\nBody Paragraph"
+    temp_md = tmp_path / "format_test.md"
+    temp_md.write_text(md_content, encoding='utf-8')
+
+    create_word_document(str(tmp_path), "format_test.md", indent_first_line=True, space_before=True, space_after=True)
+
+    output_docx = tmp_path / "format_test.docx"
+    assert output_docx.exists()
+
+    doc = Document(str(output_docx))
+    assert len(doc.paragraphs) == 2
+
+    # Heading paragraph (not body)
+    heading_p = doc.paragraphs[0]
+    assert heading_p.paragraph_format.space_before.pt == 12.0
+    assert heading_p.paragraph_format.space_after.pt == 12.0
+
+    # Body paragraph
+    body_p = doc.paragraphs[1]
+    assert body_p.paragraph_format.first_line_indent.inches == 0.5
+    assert body_p.paragraph_format.space_before.pt == 12.0
+    assert body_p.paragraph_format.space_after.pt == 12.0
+
+
+
+
