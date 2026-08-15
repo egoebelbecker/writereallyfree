@@ -5,11 +5,13 @@
 This is a work in progress. The current version synchronizes text files from a FreeWrite device to a configured directory on a Linux, Mac or PC. 
 
 You can configure a location to sync files and set custom folder names.
+
 <img width="451" height="612" alt="Screenshot_20260815_175235" src="https://github.com/user-attachments/assets/3da005bf-a5b5-4d65-bcbc-17c737a04299" />
 
 It will optionally convert the files to .docx, supporting any markdown formatting you have in there, too.
 
 You can configure a few options for the docx conversion:
+
 <img width="447" height="360" alt="Screenshot_20260815_175116" src="https://github.com/user-attachments/assets/38924592-80c3-44ee-a0b4-c9f9df2c170e" />
 
 It will find your FreeWrite on demand if you run the app before you remember to plug it in.
@@ -32,15 +34,16 @@ Download the AppImage from the [releases](https://github.com/egoebelbecker/write
 Download the DMG from [releases](https://github.com/egoebelbecker/writereallyfree/releases/). Uncompress it. Open the DMG and run it from there. If you like it, drag it over to Applications.
 
 ### Windows
-Unzip the package, run from the unzipped folder. Any help coming up with an easier to manage package is welcome.
+Unzip the [package](https://github.com/egoebelbecker/writereallyfree/releases/), run from the unzipped folder. Any help coming up with an easier to manage package is welcome.
 
 
+## Running the Application from the repository
 
-## Prerequisites
+### Prerequisites
 
 If you want to check out the repo and run from source, you'll need a couple of packages for Linux.
 
-### 1. System Dependencies (Linux)
+#### 1. System Dependencies (Linux)
 
 PyWebView requires a rendering engine. On Linux, it supports either GTK (via WebKit2GTK) or Qt.
 
@@ -65,9 +68,8 @@ sudo dnf install python3-gobject webkit2gtk4.0
 sudo pacman -S python-gobject webkit2gtk
 ```
 
-Or, download an appimage
 
-### 2. System Dependencies (macOS)
+#### 2. System Dependencies (macOS)
 
 On macOS, `pywebview` uses the native WebKit engine via Cocoa. When using a Python virtual environment, you need Python bindings for Objective-C:
 
@@ -77,7 +79,7 @@ pip install pywebview[cocoa]
 ```
 But you can download a DMG and just run the app.
 
-### 3. System Dependencies (Windows - not packaged yet)
+#### 3. System Dependencies
 
 On Windows, `pywebview` renders windows using **WebView2** (Edge Chromium engine) and interfaces with the system via `.NET`.
 
@@ -88,9 +90,7 @@ On Windows, `pywebview` renders windows using **WebView2** (Edge Chromium engine
   # This automatically installs pythonnet (the Python-to-.NET bridge)
   ```
 
-So, you can check out the code and run it. It should work.
-
-### 4. Python Virtual Environment Setup
+#### 4. Python Virtual Environment Setup
 
 Initialize and install Python packages using the local virtual environment:
 
@@ -104,10 +104,6 @@ source .venv/bin/activate
 # 3. Install Python dependencies
 pip3 install -r requirements.txt
 ```
-
-
-
-## Running the Application from the repository
 
 Ensure your virtual environment is active, then launch the entry script:
 
