@@ -40,6 +40,7 @@ def test_home_and_preferences(monkeypatch, tmp_path):
     assert 'docx_indent_first_line' in prefs
     assert 'docx_space_before' in prefs
     assert 'docx_space_after' in prefs
+    assert 'allowed_labels' in prefs
 
 
 def test_save_preferences_and_read_preview(monkeypatch, tmp_path):
@@ -59,13 +60,14 @@ def test_save_preferences_and_read_preview(monkeypatch, tmp_path):
     api = app_module.HomeExplorerAPI()
     api.home_dir = str(tmp_path)
 
-    res = api.save_preferences('mysync', True, 'dark', 'pre', True, False, True, True, True, True)
+    res = api.save_preferences('mysync', True, 'dark', 'pre', True, False, True, True, True, True, 'label1, label2')
     assert res['success'] is True
     assert os.path.exists(os.path.join(str(tmp_path), 'mysync'))
     assert saved_cfg.get('docx_doublespace') is True
     assert saved_cfg.get('docx_indent_first_line') is True
     assert saved_cfg.get('docx_space_before') is True
     assert saved_cfg.get('docx_space_after') is True
+    assert saved_cfg.get('allowed_labels') == ['label1', 'label2']
 
     # create a file and ensure preview reads it
     target = tmp_path / 'mysync' / 'note.txt'
@@ -74,3 +76,4 @@ def test_save_preferences_and_read_preview(monkeypatch, tmp_path):
     out = api.read_file_preview(os.path.join('mysync', 'note.txt'))
     assert out['success'] is True
     assert 'hello world' in out['content']
+

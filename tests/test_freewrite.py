@@ -63,3 +63,22 @@ def test_sync_drives_strip_date_prefix(monkeypatch, tmp_path):
     assert dest_docx.exists()
     assert not unstripped_txt.exists()
 
+
+def test_allowed_labels_configuration(monkeypatch):
+    monkeypatch.setattr(config_store, 'load_config', lambda: {
+        "sync_folder_name": "",
+        "copy_empty_folders": False,
+        "allowed_labels": ["freewrite", "custom_drive"]
+    })
+
+    mgr = FreeWriteDriveManager()
+    assert mgr.allowed_labels == {"freewrite", "custom_drive"}
+
+    # Pass explicit custom string labels
+    mgr_custom = FreeWriteDriveManager(allowed_labels="drive_a, DRIVE_B")
+    assert mgr_custom.allowed_labels == {"drive_a", "drive_b"}
+
+    # Update via update_sync_settings
+    mgr.update_sync_settings('name', False, allowed_labels="new_label, another")
+    assert mgr.allowed_labels == {"new_label", "another"}
+

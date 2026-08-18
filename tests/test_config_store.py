@@ -39,3 +39,4 @@ def test_save_and_load_config(monkeypatch, tmp_path):
     assert loaded2["docx_indent_first_line"] is False
     assert loaded2["docx_space_before"] is False
     assert loaded2["docx_space_after"] is False
+    assert loaded2["allowed_labels"] == ["freewrite", "traveler", "alpha"]

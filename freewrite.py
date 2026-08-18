@@ -26,11 +26,33 @@ def get_checksum(filepath):
         return None
 
 
+def parse_allowed_labels(labels):
+    if labels is None:
+        return {'freewrite', 'traveler', 'alpha'}
+    if isinstance(labels, str):
+        items = labels.split(',')
+    elif isinstance(labels, (list, set, tuple)):
+        items = labels
+    else:
+        return {'freewrite', 'traveler', 'alpha'}
+
+    result = set()
+    for item in items:
+        if isinstance(item, str):
+            for sub in item.split(','):
+                cleaned = sub.strip().lower()
+                if cleaned:
+                    result.add(cleaned)
+    return result if result else {'freewrite', 'traveler', 'alpha'}
+
+
 class FreeWriteDriveManager:
-    def __init__(self):
-        self.allowed_labels = {'freewrite', 'traveler', 'alpha'}
+    def __init__(self, allowed_labels=None):
         from config_store import load_config
         config = load_config()
+        if allowed_labels is None:
+            allowed_labels = config.get("allowed_labels", ["freewrite", "traveler", "alpha"])
+        self.allowed_labels = parse_allowed_labels(allowed_labels)
         self.sync_folder_name = config.get("sync_folder_name", "")
         self.copy_empty_folders = config.get("copy_empty_folders", False)
         self.copy_readme = config.get("copy_readme", False)
@@ -42,7 +64,7 @@ class FreeWriteDriveManager:
         self.docx_space_before = config.get("docx_space_before", False)
         self.docx_space_after = config.get("docx_space_after", False)
 
-    def update_sync_settings(self, name, copy_empty_folders, copy_readme=False, prefix="", convert_to_docx=False, strip_date_prefix=False, docx_doublespace=False, docx_indent_first_line=False, docx_space_before=False, docx_space_after=False):
+    def update_sync_settings(self, name, copy_empty_folders, copy_readme=False, prefix="", convert_to_docx=False, strip_date_prefix=False, docx_doublespace=False, docx_indent_first_line=False, docx_space_before=False, docx_space_after=False, allowed_labels=None):
         self.sync_folder_name = name
         self.copy_empty_folders = copy_empty_folders
         self.copy_readme = copy_readme
@@ -53,9 +75,11 @@ class FreeWriteDriveManager:
         self.docx_indent_first_line = docx_indent_first_line
         self.docx_space_before = docx_space_before
         self.docx_space_after = docx_space_after
+        if allowed_labels is not None:
+            self.allowed_labels = parse_allowed_labels(allowed_labels)
 
     def get_drives(self):
-        """Scans the system for mounted drives named FreeWrite, Traveler, or Alpha."""
+        """Scans the system for mounted drives matching configured allowed labels."""
         drives = []
         system = platform.system()
         if system == "Linux":

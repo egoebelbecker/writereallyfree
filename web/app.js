@@ -662,6 +662,7 @@ function setupPreferencesListeners() {
     const inputDocxSpaceBefore = document.getElementById('input-docx-space-before');
     const inputDocxSpaceAfter = document.getElementById('input-docx-space-after');
     const inputStripDatePrefix = document.getElementById('input-strip-date-prefix');
+    const inputAllowedLabels = document.getElementById('input-allowed-labels');
 
     const tabBtnGeneral = document.getElementById('tab-btn-general');
     const tabBtnWord = document.getElementById('tab-btn-word');
@@ -720,6 +721,16 @@ function setupPreferencesListeners() {
                         if (inputDocxSpaceAfter) {
                             inputDocxSpaceAfter.checked = res.docx_space_after || false;
                         }
+                        if (inputAllowedLabels) {
+                            const labels = res.allowed_labels;
+                            if (Array.isArray(labels)) {
+                                inputAllowedLabels.value = labels.join(', ');
+                            } else if (typeof labels === 'string') {
+                                inputAllowedLabels.value = labels;
+                            } else {
+                                inputAllowedLabels.value = 'freewrite, traveler, alpha';
+                            }
+                        }
 
                         const activeTheme = res.theme || "system";
                         themeOpts.forEach(opt => {
@@ -755,6 +766,7 @@ function setupPreferencesListeners() {
         const docxIndentFirstLineVal = inputDocxIndentFirstLine ? inputDocxIndentFirstLine.checked : false;
         const docxSpaceBeforeVal = inputDocxSpaceBefore ? inputDocxSpaceBefore.checked : false;
         const docxSpaceAfterVal = inputDocxSpaceAfter ? inputDocxSpaceAfter.checked : false;
+        const allowedLabelsVal = inputAllowedLabels ? inputAllowedLabels.value : "";
 
         if (window.pywebview && window.pywebview.api && window.pywebview.api.save_preferences) {
             window.pywebview.api.save_preferences(
@@ -767,7 +779,8 @@ function setupPreferencesListeners() {
                 docxDoublespaceVal,
                 docxIndentFirstLineVal,
                 docxSpaceBeforeVal,
-                docxSpaceAfterVal
+                docxSpaceAfterVal,
+                allowedLabelsVal
             )
                 .then(res => {
                     if (res.success) {

@@ -32,7 +32,8 @@ def load_config():
         "docx_doublespace": False,
         "docx_indent_first_line": False,
         "docx_space_before": False,
-        "docx_space_after": False
+        "docx_space_after": False,
+        "allowed_labels": ["freewrite", "traveler", "alpha"]
     }
     if os.path.exists(config_path):
         try:

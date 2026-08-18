@@ -39,6 +39,7 @@ class HomeExplorerAPI:
         self.docx_indent_first_line = config.get("docx_indent_first_line", False)
         self.docx_space_before = config.get("docx_space_before", False)
         self.docx_space_after = config.get("docx_space_after", False)
+        self.allowed_labels = config.get("allowed_labels", ["freewrite", "traveler", "alpha"])
 
     def get_home_path(self):
         """Returns the absolute path of the home directory."""
@@ -54,6 +55,9 @@ class HomeExplorerAPI:
 
     def get_preferences(self):
         """Fetch saved configuration preferences, including app version."""
+        labels = getattr(self, "allowed_labels", ["freewrite", "traveler", "alpha"])
+        if hasattr(self.freewrite_manager, "allowed_labels") and isinstance(self.freewrite_manager.allowed_labels, set):
+            labels = list(self.freewrite_manager.allowed_labels)
         return {
             "success": True,
             "sync_folder_name": self.sync_folder_name,
@@ -66,6 +70,7 @@ class HomeExplorerAPI:
             "docx_indent_first_line": getattr(self, "docx_indent_first_line", False),
             "docx_space_before": getattr(self, "docx_space_before", False),
             "docx_space_after": getattr(self, "docx_space_after", False),
+            "allowed_labels": labels,
             "version": getattr(self, "version", "dev")
         }    
     def open_external(self, url):
@@ -95,7 +100,7 @@ class HomeExplorerAPI:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def save_preferences(self, sync_folder_name, copy_empty_folders=False, theme="system", sync_folder_prefix="", convert_to_docx=False, strip_date_prefix=False, docx_doublespace=False, docx_indent_first_line=False, docx_space_before=False, docx_space_after=False):
+    def save_preferences(self, sync_folder_name, copy_empty_folders=False, theme="system", sync_folder_prefix="", convert_to_docx=False, strip_date_prefix=False, docx_doublespace=False, docx_indent_first_line=False, docx_space_before=False, docx_space_after=False, allowed_labels=None):
         """Save preferences and ensure folders exist."""
         try:
             sync_folder_name = sync_folder_name.strip().strip("/").strip("\\")
@@ -106,6 +111,15 @@ class HomeExplorerAPI:
                 if not os.path.exists(full_path):
                     os.makedirs(full_path, exist_ok=True)
             
+            if allowed_labels is None:
+                allowed_labels_list = getattr(self, "allowed_labels", ["freewrite", "traveler", "alpha"])
+            elif isinstance(allowed_labels, str):
+                allowed_labels_list = [x.strip() for x in allowed_labels.split(",") if x.strip()]
+            else:
+                allowed_labels_list = list(allowed_labels)
+            if not allowed_labels_list:
+                allowed_labels_list = ["freewrite", "traveler", "alpha"]
+
             from config_store import save_config
             save_config({
                 "sync_folder_name": sync_folder_name,
@@ -117,7 +131,8 @@ class HomeExplorerAPI:
                 "docx_doublespace": docx_doublespace,
                 "docx_indent_first_line": docx_indent_first_line,
                 "docx_space_before": docx_space_before,
-                "docx_space_after": docx_space_after
+                "docx_space_after": docx_space_after,
+                "allowed_labels": allowed_labels_list
             })
             
             self.sync_folder_name = sync_folder_name
@@ -130,6 +145,7 @@ class HomeExplorerAPI:
             self.docx_indent_first_line = docx_indent_first_line
             self.docx_space_before = docx_space_before
             self.docx_space_after = docx_space_after
+            self.allowed_labels = allowed_labels_list
             
             self.freewrite_manager.update_sync_settings(
                 name=sync_folder_name,
@@ -141,7 +157,8 @@ class HomeExplorerAPI:
                 docx_doublespace=docx_doublespace,
                 docx_indent_first_line=docx_indent_first_line,
                 docx_space_before=docx_space_before,
-                docx_space_after=docx_space_after
+                docx_space_after=docx_space_after,
+                allowed_labels=allowed_labels_list
             )
             return {"success": True}
         except Exception as e:
@@ -163,7 +180,8 @@ class HomeExplorerAPI:
                 docx_doublespace=config.get("docx_doublespace", False),
                 docx_indent_first_line=config.get("docx_indent_first_line", False),
                 docx_space_before=config.get("docx_space_before", False),
-                docx_space_after=config.get("docx_space_after", False)
+                docx_space_after=config.get("docx_space_after", False),
+                allowed_labels=config.get("allowed_labels", ["freewrite", "traveler", "alpha"])
             )
             
             return self.freewrite_manager.sync_drives()
